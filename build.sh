@@ -1,12 +1,12 @@
 echo Building DanOS...
 echo Compiling MBR...
-nasm mbr.asm -ombr.bin
+nasm mbr.asm -ombr.bin || exit 1
 echo Compiling Partition 1,,,
-nasm part1.asm -opart1.bin
+nasm part1.asm -opart1.bin || exit 1
 echo Mounting the image...
 mkdir danos/
 sudo umount danos/
-sudo mount -oloop part1.bin danos/
+sudo mount -oloop part1.bin danos/ || exit 1
 echo Compiling the programs...
 for i in apps/*.asm
 do
@@ -19,4 +19,4 @@ umount danos/
 echo Combining the MBR...
 cat mbr.bin part1.bin > danos.bin
 echo Running the emulator...
-qemu  -hda danos.bin
+qemu-kvm  -hda danos.bin
