@@ -78,8 +78,11 @@ load_kernel:
     .win:
         add di, 15 ; get to the info block
         ; The next two bytes are the location in secateurs.
-        mov ax, [di]
-        jmp word [ax]
+        mov es, di
+        push es
+        inc di
+        push di
+        retf
 
         mov al, "Y"
         mov ah, 0x0e
