@@ -4,7 +4,7 @@ nasm mbr.asm -ombr.bin || exit 1
 echo Compiling Partition 1,,,
 nasm part1.asm -opart1.bin || exit 1
 echo Mounting the image...
-mkdir danos/
+mkdir -p danos/
 sudo umount danos/
 sudo mount -oloop part1.bin danos/ || exit 1
 echo Compiling the programs...
@@ -15,7 +15,7 @@ done
 sudo cp apps/*.bin danos/
 sync
 echo Unmounting the disk image...
-umount danos/
+sudo umount danos/
 echo Combining the MBR...
 cat mbr.bin part1.bin > danos.bin
 echo Running the emulator...
