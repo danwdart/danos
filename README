@@ -1,9 +1,0 @@
-DanOS
-Author: Dan Dart
-Version 0.1
-License: MIT 
-
-A hobby OS written for x86 BIOS.
-
-To build and run in a virtualised environment:
-./build.sh

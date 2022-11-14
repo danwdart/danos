@@ -1,27 +1,30 @@
+%include "src/inc/constants.asm"
+
 %define FILENAME_LENGTH 11
 
 signature:
-        call init
-        OEMId db 'DANOS0.1'
-        BytesPerSector dw 512
-        SectorsPerCluster db 1
-        ReservedForBoot dw 1
-        NumberOfFats db 2
-        NumberOfDirEntries dw 512 	; sectors to read = direntries * 32 / (bytespercluster*sectorspercluster) = 32
-        LogicalSectors dw 2047 	;= 1M. 0x0800
-        MediaDescriptor db 0xf8 	; f8 = HD
-        SectorsPerFat dw 9 		;2
-        SectorsPerTrack dw 18 	;32
-        TotalHeads dw 2 		; 0x0040
-        HiddenSectors dd 0
-        LargeSectors dd 0
-        ; fat12
-        DriveNumber db 0x80 	; useless!
-        NTFlags db 0x00 		; reserved
-        DriveSignature db 0x29 	; or 0x28 - so NT recognises it
-        VolumeId dd 0x78563412
-        VolumeLabel db 'DANOS FILES'
-        SysId db 'FAT12   '
+    call init
+    OEMId: db 'DANOS0.1'
+    BytesPerSector: dw 512
+    SectorsPerCluster: db 1
+    ReservedForBoot: dw 1
+    NumberOfFats: db 2
+    NumberOfDirEntries: dw 512 	; sectors to read = direntries * 32 / (bytespercluster*sectorspercluster) = 32
+    LogicalSectors: dw 2047 	;= 1M. 0x0800
+    MediaDescriptor: db 0xf8 	; f8 = HD
+    SectorsPerFat: dw 9 		;2
+    SectorsPerTrack: dw 18 	;32
+    TotalHeads: dw 2 		; 0x0040
+    HiddenSectors: dd 0
+    LargeSectors: dd 0
+    ; fat12
+    DriveNumber: db 0x80 	; useless!
+    NTFlags: db 0x00 		; reserved
+    DriveSignature: db 0x29 	; or 0x28 - so NT recognises it
+    VolumeId: dd 0x78563412
+    VolumeLabel: db 'DANOS FILES'
+    SysId: db 'FAT12   '
+
 init:
         cli				; Clear interrupts
         mov ax, 0
@@ -42,7 +45,7 @@ find_file_kernel:
     .reset:
         mov dl, 0x80 		; sda
         mov ah, 0
-        int 0x13
+        int INT_IO
 
     .read:
         mov ah, 0x02        ; routine
@@ -54,27 +57,30 @@ find_file_kernel:
         mov bx, 0x0300 		; segment to load it to
         mov es, bx
         mov bx, 0x0000 		; offset (add to seg)
-        int 0x13
-        jnc .ok
+        int INT_IO
+        jnc ok
     
     .error:
-        mov al, ah
-	    mov ah, 0x0e
-	    int 0x10
+        mov al, "E"
+        ; mov al, ah
+	    mov ah, VIDEO_PRINT
+	    int INT_VIDEO
         cli
         hlt
         jmp $
+
     .ok:
         mov cx, 10000
         mov di, bx
-        mov si, filename 
+        mov si, filename
         call findfile
-        jc .win
+        jc win
         mov al, "F"
-        mov ah, 0x0e
-        int 0x10
+        mov ah, VIDEO_PRINT
+        int INT_VIDEO
         jmp $
-    .win:
+
+    win:
 
         ; everything is in es:di, we want it in ds:si
         ;add di, 15 ; get to the info block
@@ -99,12 +105,12 @@ find_file_kernel:
         add cl, 3 ; Forst sector of old one
 
 load_kernel:
-    .reset:
+    reset:
         mov dl, 0x80 		; sda
         mov ah, 0
-        int 0x13
+        int INT_IO
 
-    .read:
+    read:
         mov ah, 0x02        ; routine
         mov al, 0x40        ; maximum filesize in sectors = 64k / 512 = 0x80
         mov ch, 0 		    ; track ; note sector already set
@@ -114,21 +120,23 @@ load_kernel:
         mov bx, 0x0400 		; segment to load it to
         mov es, bx
         mov bx, 0x0000 		; offset (add to seg)
-        int 0x13
-        jnc .ok
+        int INT_IO
+        jnc ok
     
-    .error:
+    error:
         mov al, ah
-	    mov ah, 0x0e
-	    int 0x10
+	    mov ah, VIDEO_PRINT
+	    int INT_VIDEO
         cli
         hlt
         jmp $
-    .ok:
+    ok:
+        mov al, "Y"
+        call write_char
         mov ax, es
         mov ds, ax
         mov si, 0
-        mov cx, 100
+        mov cx, 0x20
         call write_hexes
         jmp $
 
@@ -136,56 +144,9 @@ load_kernel:
         push bx
         retf
 
-write_hexes:
-    .whs:
-        lodsb
-        call write_hex
-        dec cx
-        cmp cx, 0
-        jg .whs
-        ret
-
-write_chars:
-    .wchs:
-        lodsb
-        call write_char
-        dec cx
-        cmp cx, 0
-        jg .wchs
-        ret
-
-write_char:
-        mov ah, 0x0e
-        int 0x10
-        ret
-
-write_hex:
-    .write:
-        mov bl, al ; bl now 0x41 for example
-        shr bl, 4 ; bl now 0x04
-        and bl, 0x0f ; make sure!!!
-        cmp bl, 0x0a
-        jl .cont
-        add bl, 0x07
-    .cont: 
-        add bl, 0x30
-        ; bl now correct
-        ; bh can now be the higher byte
-        mov bh, al ; bl now 0xba
-        and bh, 0x0f ; bl now 0x0a
-        cmp bh, 0x0a
-        jl .islesst
-        add bh, 0x07
-    .islesst:
-        add bh, 0x30
-        ; bx now correct
-        mov al, bl
-        mov ah, 0x0e; print
-        int 0x10
-        mov al, bh
-        int 0x10
-    .end:
-        ret
+%include "src/inc/write_hexes.asm"
+%include "src/inc/write_chars.asm"
+%include "src/inc/write_string.asm"
 
 ; We want to find a string in another string
 ; es:di = big string, ds:si = 0-term'd string, 
@@ -215,20 +176,10 @@ findfile:
 
     .fail:
         clc
-        ret       
-
-write_string:
-        mov ah, 0x0e
-    .char:
-        lodsb
-        cmp al, 0
-        jz .done
-        int 0x10
-        jmp .char
-    .done:
         ret
-
-        kernld db 'Finding kernel.bin', 0x0d, 0x0a, 0
+        
+data:
+        kernld db 'I am partition 1 bootcode. Finding kernel.bin...', 0x0d, 0x0a, 0
         filename db 'KERNEL  BIN', 0
         newline db 0x0a, 0x0d, 0
 
