@@ -1,21 +1,26 @@
-; this seems pretty invalid - this program has 32 bits of returns and uses bios video mode alls
-
-%include "src/inc/constants.asm"
-
+; todo esi/edi
 cpuid:
-    .init:
-        cpuid
-        push ecx
-        push edx
-        push ebx
-        mov cl, 12
-        mov ah, VIDEO_PRINT
-    .start:
-        pop ax
-        int INT_VIDEO
-        test cl, cl ; compare to 0
-        jz .end
-        dec cl
-        jmp .start
-    .end: 
-        ret
+    mov eax, 0
+    push eax
+    cpuid
+    push ecx
+    push edx
+    push ebx
+
+loop:
+    pop eax
+    cmp eax, 0
+    je done
+
+next_byte:
+    stosb
+    mov al, 0x0f
+    stosb
+    shr eax, 8
+    cmp al, 0x00
+    jne next_byte
+
+    jmp loop
+
+done:
+    ret

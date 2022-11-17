@@ -35,4 +35,4 @@ clean:
 	$(RM) -r build
 
 qemu:
-	qemu-system-i386 -d pcall,guest_errors,unimp build/danos.bin
+	qemu-system-x86_64 -enable-kvm -cpu host -d pcall,guest_errors,unimp build/danos.bin

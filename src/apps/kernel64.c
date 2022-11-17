@@ -1,5 +1,6 @@
 /* We can no longer use BIOS calls */
+unsigned char *videoram = (unsigned char *)0xB8000;
 
-void kernel64_start() {
+extern void kernel64_start() {
 
 }
