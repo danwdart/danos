@@ -37,12 +37,12 @@ print_welcome:
 %include "src/inc/video/write_string.asm"
 %include "src/inc/video/write_hexes.asm"
 
-%include "src/apps/enter_protmode.asm"
-%include "src/apps/protmode.asm"
-%include "src/apps/cpuid.asm"
-%include "src/apps/enter_longmode.asm"
-%include "src/apps/longmode.asm"
-%include "src/apps/gdt64.asm"
+%include "src/inc/protmode/enter_protmode.asm"
+%include "src/inc/protmode/protmode.asm"
+%include "src/root/cpuid.asm"
+%include "src/inc/longmode/enter_longmode.asm"
+%include "src/inc/longmode/longmode.asm"
+%include "src/inc/longmode/gdt64.asm"
 
     welcome db "Welcome to DanOS. Loaded 16-bit kernel v0.2.", 0x0a, 0x0d, 0x0 
     prompt db '>', 0

@@ -1,6 +1,6 @@
 NASM = nasm
 NASMFLAGS =
-APPS = build/apps/kernel16.bin # build/apps/cpuid.bin build/apps/vesa.bin
+FILES = build/root/kernel16.bin # build/root/cpuid.bin build/root/vesa.bin
 RM = rm
 
 .PHONY: all
@@ -10,23 +10,24 @@ all: build/danos.bin
 build:
 	mkdir build
 
-apps: build
-	mkdir -p build/apps
+root: build
+	mkdir -p build/root
 
 build/mbr.bin: build src/mbr.asm
 	$(NASM) $(NASMFLAGS) src/mbr.asm -o build/mbr.bin
 
-build/apps/%.bin: src/apps/%.asm
+build/root/%.bin: src/root/%.asm
 	$(NASM) $(NASMFLAGS)  -o $@ $<
 
-build/part1.bin: apps src/part1.asm $(APPS)
+build/part1.bin: root src/part1.asm $(FILES)
 	$(NASM) $(NASMFLAGS) src/part1.asm -o build/part1.bin
-	mkdir -p build/danos/
-	sudo umount build/danos/ || echo "ok"
-	sudo mount -oloop build/part1.bin build/danos/
-	sudo cp -r build/apps/*.bin build/danos/
+	mkdir -p mounts/danos/
+	sudo umount mounts/danos/ || echo "ok"
+	sudo mount -oloop build/part1.bin mounts/danos/
+	sudo cp -r build/root/*.bin mounts/danos/
 	sync
-	sudo umount build/danos/
+	sudo umount mounts/danos/
+	rm -rf mounts
 
 build/danos.bin: build build/mbr.bin build/part1.bin
 	cat build/mbr.bin build/part1.bin > build/danos.bin
