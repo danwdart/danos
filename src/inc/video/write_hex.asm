@@ -1,5 +1,7 @@
 %include "src/inc/constants.asm"
 
+; input: al
+; clobbers: bl, ah
 write_hex:
     .write:
         mov bl, al ; bl now 0x41 for example

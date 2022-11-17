@@ -1,31 +1,43 @@
 %include "src/inc/constants.asm"
 
 init:
-    mov ax, BOOTSEG  ; set up segments
+    mov ax, MBR_SEGMENT  ; set up segments
     mov ds, ax
     mov es, ax
 loader:
     .start:
+
+    .print_welcome:
         mov si, welcome
         call write_string
 
-    .reset_disk:
-        mov dl, DISK_SDA ; sda
-        mov ah, 0
-        int INT_IO
+        call reset_disk
+
+    .detect_boot_disk:
+        cmp bl, DISK_SDA
+        je .is_first_hd
+        mov si, is_not_first_hd_msg
+        jmp .print_boot_disk
+
+    .is_first_hd:
+        mov si, is_first_hd_msg
+
+    .print_boot_disk:
+        call write_string
 
     .read:
         mov ah, 0x02
         mov al, 20 ; sectors to read
-        mov ch, DISK_TRACK ; track
+        mov ch, DISK_CYLINDER ; cylinder
         mov cl, DISK_SECTOR ; sector, 1-based
         mov dh, DISK_HEAD ; head
         mov dl, DISK_SDA ; drive
-        mov bx, MEM_SEGMENT ; segment ( * 0x10 )
+        mov bx, VBR_SEGMENT ; segment ( * 0x10 )
         mov es, bx
-        mov bx, MEM_OFFSET ; offset (add to seg)
+        mov bx, VBR_OFFSET ; offset (add to seg)
         int INT_IO
         jnc .ok
+    .error:
         mov al, ah
         call write_hex
         cli
@@ -33,12 +45,15 @@ loader:
     .ok: ; we've now loaded our sectors into memory
         push es ; our new cs
         push bx ; our new ip
-        retf ; ip=bx. cs = es 
+        retf ; ip=bx. cs = es
 
-    welcome db "I am the MBR. Welcome!", 0x0a, 0x0d, 0x0
+    welcome db "DanLoader 0.2 booting...", 0x0a, 0x0d, 0x0
+    is_not_first_hd_msg db "Not booting from first HD. There may be trouble.", 0x0a, 0x0d, 0x0
+    is_first_hd_msg db "Booting from first HD...", 0x0a, 0x0d, 0x0
     
-%include "src/inc/write_string.asm"
-%include "src/inc/write_hex.asm"
+%include "src/inc/video/write_string.asm"
+%include "src/inc/video/write_hex.asm"
+%include "src/inc/io/reset_disk.asm"
 
 disk_sig:
     times 440-($-$$) db 0

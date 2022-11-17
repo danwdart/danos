@@ -1,22 +1,24 @@
-%include "src/inc/write_hexes.asm"
+%include "src/inc/constants.asm"
+%include "src/inc/video/write_hexes.asm"
 
 vesa_get_info:
-        mov ax, 0x4f00
-        int 0x10
+        mov ax, VESA_GET_INFO
+        int INT_VIDEO
         ; this should have set es:di to our point
-        cmp ax, 0x4f00 ; did it work
-        je fail
+        cmp ax, VESA_GET_INFO ; did it work
+        je .fail
 
         ;add di, 4 ; get to after the VESA signature
         ;mov ax, di
         ;mov si, ax
         mov si, di
-        mov cx, 16
+        mov cx, 0x10 ; how much data do we want
         call write_hexes
-        jmp end
+        jmp .end
 
-    fail:
-        mov ah, 0x0e
+    .fail:
+        mov ah, VIDEO_PRINT
         mov al, "F"
-        int 0x10
-    end:
+        int INT_VIDEO
+    .end:
+        ret
