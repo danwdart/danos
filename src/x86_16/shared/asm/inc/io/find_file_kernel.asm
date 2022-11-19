@@ -7,24 +7,22 @@ find_file_kernel:
         mov ah, 0x02        ; routine
         mov al, 19          ; [NumberOfFats]*[SectorsPerFat]+[ReservedForBoot] ; so we load enough to go from the first fat.
         xor ch, ch 		    ; track = 0
-        mov cl, 3 		    ; sector, 1-based
+        mov cl, 2 		    ; sector, 1-based
         xor dh, dh 		    ; head = 0
         mov dl, DISK_SDA 		; drive
         mov bx, FAT_SEGMENT 		; segment to load it to
         mov es, bx
-        mov bx, FAT_OFFSET 		; offset (add to seg)
+        mov bx, FAT_OFFSET 		; offset (add to seg)        
         int INT_IO
         jnc .ok
     
     .error:
-        mov si, err_read_fat
-        call write_string
         cli
         hlt
         jmp $
 
     .ok:
-        mov cx, 0x3000 ; max length to find
+        mov cx, 0xffff ; max length to find
         mov di, bx ; offset to find it from (implicit segment)
         mov si, filename
         call findfile
