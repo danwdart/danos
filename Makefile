@@ -1,39 +1,203 @@
+CC	= gcc
+CFLAGS32	= -m32 -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Isrc/x86_32/kernel/c/lib -Isrc/x86_32/boot/c/lib
+CFLAGS64	= -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Isrc/x86_64/kernel/c/lib -Isrc/x86_64/boot/c/lib
+CFLAGS64EFI = -Wall -Werror -fno-stack-protector -fpic -fshort-wchar -mno-red-zone -DEFI_FUNCTION_WRAPPER
+CFLAGS64EFINEW = -Wall -Werror -fno-stack-protector -fpic -ffreestanding -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args
+EFIDIR = /nix/store/37j8p8s6sj7qs50mmhi400afzmr756jv-gnu-efi-3.0.15
+HEADERPATH = ${EFIDIR}/include/efi
+HEADERS = -I ${HEADERPATH} -I ${HEADERPATH}/x86_64
+LIBDIR = ${EFIDIR}/lib
+LD	= ld
+LDFLAGS32 = -m elf_i386
+LDFLAGS64 = -m elf_x86_64
+LDFLAGS64EFI = -nostdlib -znocombreloc -T ${LIBDIR}/elf_x86_64_efi.lds -shared -Bsymbolic -L ${LIBDIR} -l:libgnuefi.a -l:libefi.a
+LDFLAGS64EFINEW = -T ${LIBDIR}/elf_x86_64_efi.lds -shared -Bsymbolic -L ${LIBDIR} -l:libgnuefi.a -l:libefi.a
+AS = as
+ASFLAGS32 = --32
 NASM = nasm
-NASMFLAGS =
-FILES = build/root/kernel16.bin # build/root/cpuid.bin build/root/vesa.bin
+NASMFLAGS16 =
+NASMFLAGS32 = -felf
+NASMFLAGS64 =
 RM = rm
+CKERNLIB32 = src/x86_32/kernel/c/lib
+OBJFILES32 = src/x86_32/boot/asm/inc/loader.o src/x86_32/boot/c/kernel.o ${CKERNLIB32}/video.o ${CKERNLIB32}/io.o ${CKERNLIB32}/8042.o ${CKERNLIB32}/clever.o ${CKERNLIB32}/string.o src/x86_32/kernel/c/main.o
 
 .PHONY: all
 
-all: build/danos.bin
-
-build:
-	mkdir build
-
-root: build
-	mkdir -p build/root
-
-build/mbr.bin: build src/mbr.asm
-	$(NASM) $(NASMFLAGS) src/mbr.asm -o build/mbr.bin
-
-build/root/%.bin: src/root/%.asm
-	$(NASM) $(NASMFLAGS)  -o $@ $<
-
-build/part1.bin: root src/part1.asm $(FILES)
-	$(NASM) $(NASMFLAGS) src/part1.asm -o build/part1.bin
-	mkdir -p mounts/danos/
-	sudo umount mounts/danos/ || echo "ok"
-	sudo mount -oloop build/part1.bin mounts/danos/
-	sudo cp -r build/root/*.bin mounts/danos/
-	sync
-	sudo umount mounts/danos/
-	rm -rf mounts
-
-build/danos.bin: build build/mbr.bin build/part1.bin
-	cat build/mbr.bin build/part1.bin > build/danos.bin
+all:
 
 clean:
-	$(RM) -r build
+	$(RM) -rf build
+	find . -name *.o -delete
 
-qemu:
-	qemu-system-x86_64 -enable-kvm -cpu host -d pcall,guest_errors,unimp build/danos.bin
+build:
+	mkdir -pv build
+
+build/uefi/hd.bin: build/uefi build/uefi/fat32.bin
+	dd if=/dev/zero of=build/uefi/hd.bin bs=1M count=32
+	sgdisk -o -n1 -t1:ef00 build/uefi/hd.bin
+	dd if=build/uefi/fat32.bin of=build/uefi/hd.bin seek=2048 conv=notrunc
+
+build/uefi/fat32.bin: build/uefi build/uefi/root/EFI/BOOT/BOOTX64.EFI
+	dd if=/dev/zero of=build/uefi/fat32.bin bs=1M count=31
+	mkfs.vfat -F32 build/uefi/fat32.bin # mformat -i build/uefi/fat32.bin -h 32 -t 32 -n 64 -c 1
+	mmd -i build/uefi/fat32.bin ::/EFI
+	mmd -i build/uefi/fat32.bin ::/EFI/BOOT
+	mcopy -i build/uefi/fat32.bin build/uefi/root/EFI/BOOT/BOOTX64.EFI ::/EFI/BOOT/BOOTX64.EFI
+
+# BEGIN UEFI DIRS
+
+build/uefi: build
+	mkdir -pv build/uefi
+
+build/uefi/root: build/uefi
+	mkdir -pv build/uefi/root
+
+build/uefi/root/EFI: build/uefi/root
+	mkdir -pv build/uefi/root/EFI
+
+build/uefi/root/EFI/BOOT: build/uefi/root/EFI
+	mkdir -pv build/uefi/root/EFI/BOOT
+
+src/x86_64/boot/c/efimain.o: src/x86_64/boot/c/efimain.c
+	${CC} src/x86_64/boot/c/efimain.c -c ${CFLAGS64EFI} ${HEADERS} -o src/x86_64/boot/c/efimain.o
+
+src/x86_64/boot/c/efimain.so: src/x86_64/boot/c/efimain.o
+	$(LD) src/x86_64/boot/c/efimain.o ${LIBDIR}/crt0-efi-x86_64.o ${LDFLAGS64EFI} -o src/x86_64/boot/c/efimain.so
+
+build/uefi/root/EFI/BOOT/BOOTX64.EFI: build/uefi/root/EFI/BOOT src/x86_64/boot/c/efimain.so
+	objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc --target=efi-app-x86_64 src/x86_64/boot/c/efimain.so build/uefi/root/EFI/BOOT/BOOTX64.EFI
+	strip build/uefi/root/EFI/BOOT/BOOTX64.EFI
+
+# END UEFI DIRS
+
+# BEGIN BIOS DIRS
+
+build/bios: build
+	mkdir -pv build/bios
+
+build/bios/root: build/bios
+	mkdir -pv build/bios/root
+
+# END BIOS DIRS
+
+# BEGIN 64
+
+build/bios/x86_64: build/bios
+	mkdir -pv build/bios/x86_64
+
+build/bios/x86_64/hd.bin: build/bios/x86_64 build/bios/x86_64/fat32.bin
+
+build/bios/x86_64/fat32.bin: build/bios/x86_64 build/bios/root/kern64c.bin
+
+build/bios/root/kern64c.bin: build/bios/root
+
+# END 64
+
+# BEGIN 32
+
+build/bios/x86_32: build/bios
+	mkdir -pv build/bios/x86_32
+
+# these don't yet have a bootloader
+build/bios/x86_32/hd.bin: build/bios/x86_32 build/bios/x86_32/fat32.bin build/bios/x86_16/mbr.bin
+	dd if=/dev/zero of=build/bios/x86_32/hd.bin bs=1M count=32
+	sfdisk build/bios/x86_32/hd.bin < src/x86_32/boot/sfdisk.conf
+	dd if=build/bios/x86_32/fat32.bin of=build/bios/x86_32/hd.bin bs=512 seek=2048 conv=notrunc
+
+build/bios/x86_32/fat32.bin: build/bios/x86_32 build/bios/root/kern16a.bin build/bios/root/kern32c.bin # add the others?
+	dd if=/dev/zero of=build/bios/x86_32/fat32.bin bs=1M count=32
+	mkfs.vfat -F16 build/bios/x86_32/fat32.bin
+	mkdir -p mounts/bios/x86_32/
+	sudo umount mounts/bios/x86_32/ || echo "ok"
+	sudo mount -oloop build/bios/x86_32/fat32.bin mounts/bios/x86_32/
+	sudo cp -r build/bios/root/*.bin mounts/bios/x86_32/
+	sync
+	sudo umount mounts/bios/x86_32/
+	rm -rf mounts
+# done not having a bootloader
+
+src/x86_32/kernel/c/lib/%.o: src/x86_32/kernel/c/lib/%.c
+	echo "Compiling $@ from $< in 32-bit mode"
+	$(CC) $(CFLAGS32) -o $@ -c $<
+
+src/x86_32/boot/c/kernel.o: src/x86_32/boot/c/kernel.c
+	$(CC) $(CFLAGS32) -o $@ -c $<
+
+src/x86_32/kernel/c/main.o: src/x86_32/kernel/c/main.c
+	$(CC) $(CFLAGS32) -o $@ -c $<
+
+src/x86_32/boot/asm/inc/loader.o: src/x86_32/boot/asm/inc/loader.asm
+	$(NASM) $(NASMFLAGS32) -o $@ $<
+
+build/bios/root/kern32c.bin: build/bios/root $(OBJFILES32)
+	$(LD) $(LDFLAGS32) -T src/x86_32/kernel/linker.ld -o build/bios/root/kern32c.bin $(OBJFILES32)
+
+# END 32
+
+
+# BEGIN 16
+
+build/bios/x86_16: build/bios
+	mkdir -pv build/bios/x86_16
+
+build/bios/x86_16/hd.bin: build/bios/x86_16 build/bios/x86_16/mbr.bin build/bios/x86_16/fat12.bin
+	cat build/bios/x86_16/mbr.bin build/bios/x86_16/fat12.bin > build/bios/x86_16/hd.bin
+
+build/bios/x86_16/mbr.bin: build/bios/x86_16 src/x86_16/boot/asm/mbr.asm
+	$(NASM) $(NASMFLAGS16) src/x86_16/boot/asm/mbr.asm -o build/bios/x86_16/mbr.bin
+	
+build/bios/x86_16/fat12.bin: build/bios/x86_16 build/bios/x86_16/vbr.bin build/bios/root/kern16a.bin build/bios/root/kern32c.bin
+	dd if=/dev/zero of=build/bios/x86_16/fat12.bin count=2K
+	dd if=build/bios/x86_16/vbr.bin of=build/bios/x86_16/fat12.bin conv=notrunc
+	mkdir -p mounts/bios/x86_16/
+	sudo umount mounts/bios/x86_16/ || echo "ok"
+	sudo mount -oloop build/bios/x86_16/fat12.bin mounts/bios/x86_16/
+	sudo cp -r build/bios/root/*.bin mounts/bios/x86_16/
+	sync
+	sudo umount mounts/bios/x86_16/
+	rm -rf mounts
+
+build/bios/x86_16/vbr.bin: build/bios/x86_16 src/x86_16/boot/asm/vbr.asm
+	$(NASM) $(NASMFLAGS16) src/x86_16/boot/asm/vbr.asm -o build/bios/x86_16/vbr.bin
+
+build/bios/root/kern16a.bin: build/bios/root src/x86_16/kernel/asm/kernel16.asm
+	$(NASM) $(NASMFLAGS16) src/x86_16/kernel/asm/kernel16.asm -o build/bios/root/kern16a.bin
+
+# END 16
+
+
+# BEGIN ALL
+
+x86_64_all: build/uefi/hd.bin build/bios/x86_64/hd.bin build/bios/root/kern64c.bin
+
+x86_32_all: build/bios/x86_32/hd.bin build/bios/root/kern32c.bin
+
+x86_16_all: build/bios/x86_16/hd.bin
+
+all: x86_64_all x86_32_all x86_16_all
+
+# END ALL
+
+
+# BEGIN QEMU
+
+qemu16a:
+	qemu-system-i386 -m 8 build/bios/x86_16/hd.bin
+
+qemu32c:
+	qemu-system-i386 -m 64 build/bios/x86_32/hd.bin
+
+qemu32c_direct:
+	qemu-system-i386 -m 64 -kernel build/bios/root/kern32c.bin # build/bios/x86_32/hd.bin
+
+qemu64c:
+	qemu-system-x86_64 -enable-kvm -cpu qemu64 -drive file=build/bios/x86_64/hd.bin,format=raw
+
+qemu64c_direct:
+	qemu-system-x86_64 -enable-kvm -cpu qemu64 -kernel build/bios/x86_64/kern64c.bin -drive file=build/bios/x86_64/hd.bin,format=raw
+
+qemu64c_uefi:
+	qemu-system-x86_64 -enable-kvm -cpu qemu64 -pflash OVMF_CODE.fd -pflash OVMF_VARS.fd -drive file=build/uefi/hd.bin,format=raw
+
+# END QEMU
