@@ -1,7 +1,3 @@
-%include "src/x86_16/shared/asm/inc/constants/int/bios.asm"
-%include "src/x86_16/shared/asm/inc/constants/int/bios/video.asm"
-%include "src/x86_16/shared/asm/inc/constants/config.asm"
-
 ;signature:
 ;    jmp kernel_start
 
@@ -48,21 +44,25 @@ print_welcome:
     jmp call_kernel32
 
     jmp $
-    
-%include "src/x86_16/shared/asm/inc/video/reset_video.asm"
-%include "src/x86_16/shared/asm/inc/video/write_char.asm"
-%include "src/x86_16/shared/asm/inc/video/write_chars.asm"
-%include "src/x86_16/shared/asm/inc/video/write_string.asm"
-%include "src/x86_16/shared/asm/inc/video/write_hex.asm"
-%include "src/x86_16/shared/asm/inc/video/write_hexes.asm"
 
-%include "src/x86_16/shared/asm/inc/io/load_kernel32.asm"
-%include "src/x86_16/shared/asm/inc/io/find_file_kernel.asm"
-%include "src/x86_16/shared/asm/inc/io/reset_disk.asm"
-%include "src/x86_16/shared/asm/inc/io/findfile.asm"
+%include "constants/int/bios.asm"
+%include "constants/int/bios/video.asm"
+%include "constants/config.asm"
+%include "constants/int/bios/video/mode.asm"    
+%include "video/reset_video.asm"
+%include "video/write_char.asm"
+%include "video/write_chars.asm"
+%include "video/write_string.asm"
+%include "video/write_hex.asm"
+%include "video/write_hexes.asm"
 
-%include "src/x86_16/shared/asm/inc/protmode/call_kernel32.asm"
-%include "src/x86_16/shared/asm/inc/protmode/gdt32.asm"
+%include "io/load_kernel32.asm"
+%include "io/find_file_kernel.asm"
+%include "io/reset_disk.asm"
+%include "io/findfile.asm"
+
+%include "protmode/call_kernel32.asm"
+%include "protmode/gdt32.asm"
 
 filename db "KERN32A BIN", 0x0
 progress_read_fat db "Reading FAT for kernel32", 0x0d, 0x0a, 0

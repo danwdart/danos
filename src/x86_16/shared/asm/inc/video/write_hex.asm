@@ -1,5 +1,3 @@
-%include "src/x86_16/shared/asm/inc/constants/int/bios/video.asm"
-
 ; input: al
 ; clobbers: bl, ah
 write_hex:

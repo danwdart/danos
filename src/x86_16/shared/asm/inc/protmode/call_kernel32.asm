@@ -1,6 +1,3 @@
-%include "src/x86_16/shared/asm/inc/constants/config.asm"
-
-
 call_kernel32:
     
     cli ; timer will fault otherwise

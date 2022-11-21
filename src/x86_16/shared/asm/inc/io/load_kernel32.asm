@@ -1,5 +1,5 @@
-%include "src/x86_16/shared/asm/inc/constants/int/bios/disk.asm"
-%include "src/x86_16/shared/asm/inc/constants/config.asm"
+%include "constants/int/bios/disk.asm"
+%include "constants/config.asm"
 
 load_kernel32:
     .reset:

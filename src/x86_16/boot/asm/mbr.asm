@@ -1,7 +1,3 @@
-%include "src/x86_16/shared/asm/inc/constants/config.asm"
-%include "src/x86_16/shared/asm/inc/constants/int/bios.asm"
-%include "src/x86_16/shared/asm/inc/constants/int/bios/disk.asm"
-
 init:
     mov ax, MBR_SEGMENT  ; set up segments
     mov ds, ax
@@ -52,10 +48,15 @@ loader:
     welcome db "DanLoader 0.2 booting...", 0x0a, 0x0d, 0x0
     is_not_first_hd_msg db "Not booting from first HD. There may be trouble.", 0x0a, 0x0d, 0x0
     is_first_hd_msg db "Booting from first HD...", 0x0a, 0x0d, 0x0
-    
-%include "src/x86_16/shared/asm/inc/video/write_string.asm"
-%include "src/x86_16/shared/asm/inc/video/write_hex.asm"
-%include "src/x86_16/shared/asm/inc/io/reset_disk.asm"
+
+%include "constants/int/bios/video.asm"
+%include "video/write_string.asm"
+%include "video/write_hex.asm"
+%include "video/write_hexes.asm"
+%include "io/reset_disk.asm"
+%include "constants/config.asm"
+%include "constants/int/bios.asm"
+%include "constants/int/bios/disk.asm"
 
 disk_sig:
     times 440-($-$$) db 0

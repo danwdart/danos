@@ -1,5 +1,3 @@
-%include "src/x86_16/shared/asm/inc/constants/int/bios/video.asm"
-
 ; params: ds:si
 ; clobbers: al
 write_string:

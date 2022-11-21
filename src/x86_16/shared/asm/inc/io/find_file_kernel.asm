@@ -1,6 +1,3 @@
-%include "src/x86_16/shared/asm/inc/constants/int/bios/disk.asm"
-%include "src/x86_16/shared/asm/inc/constants/config.asm"
-
 find_file_kernel:
     call reset_disk
 

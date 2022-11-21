@@ -1,6 +1,3 @@
-%include "src/x86_16/shared/asm/inc/constants/int/bios.asm"
-%include "src/x86_16/shared/asm/inc/constants/config.asm"
-
 %define FILENAME_LENGTH 11
 
 signature:
@@ -39,18 +36,26 @@ init:
         mov fs, ax    
         mov gs, ax
 code:
-        mov si, welcome
-        call write_string   
+        ;mov si, welcome
+        ;call write_string   
         call find_file_kernel
-        call load_kernel
-        jmp callprog16
+        ; call load_kernel
+        ; jmp callprog16
 
-%include "src/x86_16/shared/asm/inc/video/write_string.asm"
-%include "src/x86_16/shared/asm/inc/io/reset_disk.asm"
-%include "src/x86_16/shared/asm/inc/io/find_file_kernel.asm"
-%include "src/x86_16/shared/asm/inc/io/findfile.asm"
-%include "src/x86_16/shared/asm/inc/io/load_kernel.asm"
-%include "src/x86_16/shared/asm/inc/io/callprog16.asm"
+%include "constants/config.asm"
+%include "constants/int/bios.asm"
+%include "constants/int/bios/video.asm"
+%include "constants/int/bios/disk.asm"
+%include "video/write_string.asm"
+%include "io/reset_disk.asm"
+%include "io/find_file_kernel.asm"
+%include "io/findfile.asm"
+%include "video/write_hex.asm"
+%include "video/write_hexes.asm"
+%include "video/write_chars.asm"
+%include "video/write_char.asm"
+;%include "io/load_kernel.asm"
+;%include "io/callprog16.asm"
 
 data:
         progress_read_fat db "Reading FAT", 0x0d, 0x0a, 0
