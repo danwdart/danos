@@ -8,12 +8,9 @@
 %define KERNEL_OFFSET 0x0000
 %define KERNEL32_SEGMENT 0x0e00
 %define KERNEL32_OFFSET 0x0000
+%define MEM_SEGMENT 0x2000
+%define MEM_OFFSET 0x0000
 
-%define INT_VIDEO 0x10
-%define VIDEO_PRINT 0x0e
-%define VESA_GET_INFO 0x4f00
-
-%define INT_IO 0x13
 %define DISK_SDA 0x80 ; this is bl - back this up and restore it to boot from anywhere.
 %define DISK_CYLINDER 0b00000000
 %define DISK_SECTOR 0b00000010
@@ -29,9 +26,6 @@
 %define DISK_PART_TYPE_FAT12 0x01
 %define DISK_PART_LBA_FIRSTSECTOR 0x00000001
 %define DISK_PART_NUM_SECT_LE 0x000007ff
-
-%define MEM_SEGMENT 0x2000
-%define MEM_OFFSET 0x0000
 
 %define ASCII_HEX_LETTER_OFFSET 0x37
 %define ASCII_HEX_NUMBER_OFFSET 0x30

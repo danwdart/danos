@@ -1,0 +1,16 @@
+%define MISC_KB_INTERCEPT 0x4f
+%define MISC_EVT_WAIT 0x83
+%define MISC_READ_JS 0x84
+%define MISC_SYSRQ_KEY_CALLOUT 0x85
+%define MISC_WAIT 0x86
+%define MISC_MV_BLOCK 0x87
+%define MISC_GET_EXT_MEM_SIZE 0x88
+%define MISC_PROTMODE 0x89
+%define MISC_GET_SYS_PARAMS 0xc0
+%define MISC_GET_EXT_BIOS_DATA_AREA_SEG 0xc1
+%define MISC_POINTING_DEVICE 0xc2
+%define MISC_WATCHDOG 0xc2
+%define MISC_PROG_OPT_SEL 0xc4 ; MCA bus
+%define MISC_EISA_SYS_FUNC 0xD8
+%define MISC_GET_EXT_MEM_SIZE_OVER_64M 0xe801 ; ax
+%define MISC_QUERY_SYS_ADDR_MAP 0xe802 ; overrides 0xe801 and 0x88 - we should use this instead

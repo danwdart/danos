@@ -1,4 +1,6 @@
-%include "src/x86_16/shared/asm/inc/constants.asm"
+%include "src/x86_16/shared/asm/inc/constants/int/bios.asm"
+%include "src/x86_16/shared/asm/inc/constants/int/bios/video.asm"
+%include "src/x86_16/shared/asm/inc/constants/config.asm"
 
 ;signature:
 ;    jmp kernel_start
@@ -6,12 +8,15 @@
 ;    db "DOK1"
 
 kernel_start:
-    cli                     ; Clear interrupts
-    xor ax, ax ; set to 0
-    mov ss, ax              ; Set stack segment and pointer
-    mov sp, 0xFFFF
-    sti                     ; Restore interrupts
-    cld                     ; stack goes upwards
+        cli                     ; Clear interrupts
+    
+    .setup_stack:
+        xor ax, ax ; set to 0
+        mov ss, ax              ; Set stack segment and pointer
+        mov sp, 0xFFFF          ; Stack goes from 0000:ffff downwards now (bottom 64k)
+    
+        sti                     ; Restore interrupts
+        cld                     ; stack goes upwards
     
     mov ax, KERNEL_SEGMENT  ; Set all segments to match where kernel is loaded
     
@@ -38,7 +43,7 @@ print_welcome:
     ;call write_hexes
 
     call reset_video
-    
+
     jmp call_kernel32
 
     jmp $

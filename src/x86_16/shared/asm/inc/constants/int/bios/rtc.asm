@@ -1,0 +1,8 @@
+%define RTC_READ 0x00
+%define RTC_SET 0x01
+%define RTC_READ_TIME 0x02
+%define RTC_SET_TIME 0x03
+%define RTC_READ_DATE 0x04
+%define RTC_SET_DATE 0x05
+%define RTC_SET_ALARM 0x06
+%define RTC_RESET_ALARM 0x07

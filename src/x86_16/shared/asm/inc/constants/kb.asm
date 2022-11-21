@@ -1,0 +1,3 @@
+%define KB_BKSP 0x08
+%define KB_CR 0x0d
+%define KB_LF 0x0a

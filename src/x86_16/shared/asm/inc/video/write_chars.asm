@@ -1,5 +1,3 @@
-%include "src/x86_16/shared/asm/inc/constants.asm"
-
 ; params: cx, ds:si
 ; clobbers: al, sets cx to 0
 write_chars:

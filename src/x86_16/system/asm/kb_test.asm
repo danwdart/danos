@@ -1,34 +1,34 @@
 kb_test:
     ; check for key
-    mov ah, 0x01
-    int 0x16
+    mov ah, KB_READ_INPUT_STATUS
+    int INT_BIOS_KB
     jz kb_test
 
     ; get ascii code into al, scancode into ah
-    mov ah, 0x00
-    int 0x16
+    mov ah, KB_READ_CHAR
+    int INT_BIOS_KB
 
-    cmp al, 0x0d
+    cmp al, KB_CR
     je crlf
 
-    cmp al, 0x08
+    cmp al, KB_BKSP
     je bksp
 
     jmp writeit
 
 crlf:
-    mov al, 0x0a
+    mov al, KB_LF
     call write_char
-    mov al, 0x0d
+    mov al, KB_CR
 
     jmp writeit
 
 bksp:
-    mov al, 0x08
+    mov al, KB_BKSP
     call write_char
     mov al, " "
     call write_char
-    mov al, 0x08
+    mov al, KB_BKSP
 
     jmp writeit
 

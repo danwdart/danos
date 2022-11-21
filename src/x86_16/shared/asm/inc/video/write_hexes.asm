@@ -1,5 +1,3 @@
-%include "src/x86_16/shared/asm/inc/constants.asm"
-
 ; param: ds:si, cx = length
 ; clobbers: al
 write_hexes:

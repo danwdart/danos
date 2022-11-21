@@ -1,4 +1,6 @@
-%include "src/x86_16/shared/asm/inc/constants.asm"
+%include "src/x86_16/shared/asm/inc/constants/config.asm"
+%include "src/x86_16/shared/asm/inc/constants/int/bios.asm"
+%include "src/x86_16/shared/asm/inc/constants/int/bios/disk.asm"
 
 init:
     mov ax, MBR_SEGMENT  ; set up segments
@@ -26,7 +28,7 @@ loader:
         call write_string
 
     .read:
-        mov ah, 0x02
+        mov ah, DISK_READ_SECTORS
         mov al, 20 ; sectors to read
         mov ch, DISK_CYLINDER ; cylinder
         mov cl, DISK_SECTOR ; sector, 1-based
@@ -35,7 +37,7 @@ loader:
         mov bx, VBR_SEGMENT ; segment ( * 0x10 )
         mov es, bx
         mov bx, VBR_OFFSET ; offset (add to seg)
-        int INT_IO
+        int INT_BIOS_DISK
         jnc .ok
     .error:
         mov al, ah

@@ -1,4 +1,4 @@
-%include "src/x86_16/shared/asm/inc/constants.asm"
+%include "src/x86_16/shared/asm/inc/constants/int/bios/video.asm"
 
 ; input: al
 ; clobbers: bl, ah
@@ -23,12 +23,12 @@ write_hex:
         add bh, 0x30
         ; bx now correct
         mov al, bl
-        mov ah, VIDEO_PRINT; print
-        int INT_VIDEO
+        mov ah, VIDEO_WRITE_CHAR_TTY; print
+        int INT_BIOS_VIDEO
         mov al, bh
-        int INT_VIDEO
+        int INT_BIOS_VIDEO
         mov al, " "
-        int INT_VIDEO
+        int INT_BIOS_VIDEO
     .end:
         ret
 
@@ -61,9 +61,9 @@ write_hex:
 ;    .contt:
 ;        ; bx now correct
 ;        mov al, bl
-;        mov ah, VIDEO_PRINT; print
-;        int INT_VIDEO
+;        mov ah, VIDEO_WRITE_CHAR_TTY; print
+;        int INT_BIOS_VIDEO
 ;        mov al, bh
-;        int INT_VIDEO
+;        int INT_BIOS_VIDEO
 ;    .end:
  ;       ret;

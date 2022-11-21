@@ -1,4 +1,5 @@
-%include "src/x86_16/shared/asm/inc/constants.asm"
+%include "src/x86_16/shared/asm/inc/constants/int/bios.asm"
+%include "src/x86_16/shared/asm/inc/constants/config.asm"
 
 %define FILENAME_LENGTH 11
 

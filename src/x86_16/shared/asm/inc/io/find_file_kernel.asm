@@ -1,10 +1,13 @@
+%include "src/x86_16/shared/asm/inc/constants/int/bios/disk.asm"
+%include "src/x86_16/shared/asm/inc/constants/config.asm"
+
 find_file_kernel:
     call reset_disk
 
     .read:
         mov si, progress_read_fat
         call write_string
-        mov ah, 0x02        ; routine
+        mov ah, DISK_READ_SECTORS        ; routine
         mov al, 19          ; [NumberOfFats]*[SectorsPerFat]+[ReservedForBoot] ; so we load enough to go from the first fat.
         xor ch, ch 		    ; track = 0
         mov cl, 2 		    ; sector, 1-based
@@ -13,7 +16,7 @@ find_file_kernel:
         mov bx, FAT_SEGMENT 		; segment to load it to
         mov es, bx
         mov bx, FAT_OFFSET 		; offset (add to seg)        
-        int INT_IO
+        int INT_BIOS_DISK
         jnc .ok
     
     .error:
@@ -22,7 +25,7 @@ find_file_kernel:
         jmp $
 
     .ok:
-        mov cx, 0xffff ; max length to find
+        mov cx, 0xffff ; max length to find - must be in first 64kB
         mov di, bx ; offset to find it from (implicit segment)
         mov si, filename
         call findfile

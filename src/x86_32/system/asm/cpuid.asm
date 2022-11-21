@@ -14,7 +14,7 @@ loop:
 
 next_byte:
     stosb
-    mov al, 0x0f
+    mov al, 0x0f ; ???
     stosb
     shr eax, 8
     cmp al, 0x00

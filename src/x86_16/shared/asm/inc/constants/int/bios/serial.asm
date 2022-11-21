@@ -1,0 +1,3 @@
+%define SERIAL_INIT 0x00
+%define SERIAL_TX 0x01
+%define SERIAL_STATUS 0x03

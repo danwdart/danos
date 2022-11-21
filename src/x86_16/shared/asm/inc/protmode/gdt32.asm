@@ -1,3 +1,6 @@
+%include "src/x86_16/shared/asm/inc/constants/config.asm"
+
+
 align 4
 
 GDT_PTR:
