@@ -44,19 +44,16 @@ code:
         ;mov si, welcome
         ;call write_string   
         call find_file_kernel
-        ; call load_kernel
-        ; jmp callprog16
+        call load_kernel
+        jmp callprog16
 
 %include "video/write_string.asm"
 %include "io/reset_disk.asm"
 %include "io/find_file_kernel.asm"
 %include "io/findfile.asm"
-%include "video/write_hex.asm"
-%include "video/write_hexes.asm"
-%include "video/write_chars.asm"
 %include "video/write_char.asm"
-;%include "io/load_kernel.asm"
-;%include "io/callprog16.asm"
+%include "io/load_kernel.asm"
+%include "io/callprog16.asm"
 
 data:
         progress_read_fat db "Reading FAT", 0x0d, 0x0a, 0
