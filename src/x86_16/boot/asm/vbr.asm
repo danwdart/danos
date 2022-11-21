@@ -1,3 +1,8 @@
+%include "constants/config.asm"
+%include "constants/int/bios.asm"
+%include "constants/int/bios/video.asm"
+%include "constants/int/bios/disk.asm"
+
 %define FILENAME_LENGTH 11
 
 signature:
@@ -42,10 +47,6 @@ code:
         ; call load_kernel
         ; jmp callprog16
 
-%include "constants/config.asm"
-%include "constants/int/bios.asm"
-%include "constants/int/bios/video.asm"
-%include "constants/int/bios/disk.asm"
 %include "video/write_string.asm"
 %include "io/reset_disk.asm"
 %include "io/find_file_kernel.asm"

@@ -1,3 +1,8 @@
+%include "constants/config.asm"
+%include "constants/int/bios.asm"
+%include "constants/int/bios/video.asm"
+%include "constants/int/bios/video/mode.asm"
+
 ;signature:
 ;    jmp kernel_start
 
@@ -45,10 +50,6 @@ print_welcome:
 
     jmp $
 
-%include "constants/int/bios.asm"
-%include "constants/int/bios/video.asm"
-%include "constants/config.asm"
-%include "constants/int/bios/video/mode.asm"    
 %include "video/reset_video.asm"
 %include "video/write_char.asm"
 %include "video/write_chars.asm"
