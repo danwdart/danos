@@ -55,6 +55,9 @@ find_file_kernel:
         ; so where is it?
         ; di is the location of the location, so [di] is the location
         mov word cx, [di] ; ax = lowclust - TODO highclust - this is probably highclust x 0x10000 + lowclust - for now we assume it's in the first 32M.
+
+        ;;;; Let's debug here? Did this work or did it get pushed? Are we going to have to swap the endianness?
+
         ; if lowclust only the location could only be up to 128K! This is NOT always guaranteed so we need to use both!
 
         ; we still need to add the location of the partition (one more cluster above) and also the location of the first fat.

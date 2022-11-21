@@ -8,9 +8,9 @@
 ;    db "DOK1"
 
 kernel_start:
+    .setup_stack:
         cli                     ; Clear interrupts
     
-    .setup_stack:
         xor ax, ax ; set to 0
         mov ss, ax              ; Set stack segment and pointer
         mov sp, 0xFFFF          ; Stack goes from 0000:ffff downwards now (bottom 64k)
@@ -18,16 +18,17 @@ kernel_start:
         sti                     ; Restore interrupts
         cld                     ; stack goes upwards
     
-    mov ax, KERNEL_SEGMENT  ; Set all segments to match where kernel is loaded
-    
-    ; mov cs, ax ; this was already pushed, so I don't need to reset it...???
-    mov ds, ax
-    mov es, ax
-    mov fs, ax
-    mov gs, ax
-
-    ; let's reset the video mode for some reason...
-    call reset_video
+    .setup_segs:
+        mov ax, KERNEL_SEGMENT  ; Set all segments to match where kernel is loaded
+        
+        ; mov cs, ax ; this was already pushed, so I don't need to reset it...???
+        mov ds, ax
+        mov es, ax
+        mov fs, ax
+        mov gs, ax
+    .start:
+        ; let's reset the video mode for some reason...
+        call reset_video
 
 print_welcome:
     mov si, welcome
