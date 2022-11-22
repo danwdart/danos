@@ -1,4 +1,4 @@
-callprog16:
+call_kernel16:
         mov si, progress_calling_kernel
         call write_string
         mov bx, KERNEL_SEGMENT 		; segment to load it to

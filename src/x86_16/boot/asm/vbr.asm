@@ -47,7 +47,7 @@ code:
         
         call load_kernel
         
-        jmp callprog16
+        jmp call_kernel16
 
 %include "video/write_string.asm"
 %include "io/reset_disk.asm"
@@ -56,7 +56,7 @@ code:
 %include "video/write_char.asm"
 %include "video/write_chars.asm"
 %include "io/load_kernel.asm"
-%include "io/callprog16.asm"
+%include "io/call_kernel16.asm"
 
 data:
         progress_read_fat db "Reading FAT", 0x0d, 0x0a, 0
