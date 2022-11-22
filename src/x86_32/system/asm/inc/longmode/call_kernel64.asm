@@ -1,0 +1,3 @@
+[BITS 32]
+call_kernel64:
+    jmp GDT_CS64-GDT:KERNEL64_ADDR

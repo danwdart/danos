@@ -1,6 +1,5 @@
-
 [BITS 32]
-enter_longmode:
+setup_longmode:
     ; pae
     mov eax, 0xa0
     mov cr4, eax
@@ -56,4 +55,4 @@ enter_longmode:
     bts eax,31
     mov cr0,eax
 
-    jmp GDT_CS64-GDT:KERNEL_SEGMENT*0x10+longmode
+    ret

@@ -38,13 +38,10 @@ print_welcome:
 ;loadk32:
     call find_file_kernel
     call load_kernel32
-    ;mov cx, 0x20
-    ;mov ax, KERNEL32_SEGMENT
-    ;mov ds, ax
-    ;mov si, KERNEL32_OFFSET
-    ;call write_hexes
-
+    
     call reset_video
+
+    call setup_protmode
 
     jmp call_kernel32
 
@@ -62,6 +59,7 @@ print_welcome:
 %include "io/reset_disk.asm"
 %include "io/findfile.asm"
 
+%include "protmode/setup_protmode.asm"
 %include "protmode/call_kernel32.asm"
 %include "protmode/gdt32.asm"
 
