@@ -1,3 +1,6 @@
+%include "constants/int/bios/disk.asm"
+%include "constants/config.asm"
+
 load_kernel:
     .reset:
         call reset_disk
