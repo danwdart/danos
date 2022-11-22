@@ -35,7 +35,7 @@ init:
         mov sp, 0x0FFFF
         sti             	; Restore interrupts
         cld         		; stack goes upwards   
-        mov ax, VBR_SEGMENT ; Set all segments to match where booter is loaded
+        mov ax, VBR_SEGMENT ; Set all segments to match where booter is loaded - nb this has already been added to es
         mov ds, ax    
         mov es, ax    
         mov fs, ax    
@@ -44,7 +44,9 @@ code:
         ;mov si, welcome
         ;call write_string   
         call find_file_kernel
+        
         call load_kernel
+        
         jmp callprog16
 
 %include "video/write_string.asm"
@@ -52,6 +54,7 @@ code:
 %include "io/find_file_kernel.asm"
 %include "io/findfile.asm"
 %include "video/write_char.asm"
+%include "video/write_chars.asm"
 %include "io/load_kernel.asm"
 %include "io/callprog16.asm"
 

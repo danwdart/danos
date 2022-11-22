@@ -30,7 +30,7 @@ loader:
 
     .read:
         mov ah, DISK_READ_SECTORS
-        mov al, 20 ; sectors to read
+        mov al, 1 ; sectors to read = 1 (for just the vbr)
         mov ch, DISK_CYLINDER ; cylinder
         mov cl, DISK_SECTOR ; sector, 1-based
         mov dh, DISK_HEAD ; head

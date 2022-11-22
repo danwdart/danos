@@ -6,7 +6,6 @@ load_kernel32:
         call reset_disk
 
     .read:
-        add cx, 2 ; todo investigate
         mov si, progress_read_kernel
         call write_string
         mov ah, DISK_READ_SECTORS        ; routine

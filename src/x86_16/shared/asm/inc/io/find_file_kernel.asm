@@ -5,9 +5,9 @@ find_file_kernel:
         mov si, progress_read_fat
         call write_string
         mov ah, DISK_READ_SECTORS        ; routine
-        mov al, 19          ; [NumberOfFats]*[SectorsPerFat]+[ReservedForBoot] ; so we load enough to go from the first fat.
+        mov al, 0x1e         ; [NumberOfFats]*[SectorsPerFat]+[ReservedForBoot] ; so we load enough to go from the first fat
         xor ch, ch 		    ; track = 0
-        mov cl, 2 		    ; sector, 1-based
+        mov cl, 0x15 		    ; sector, 1-based (0x13 start of fat, +1 for disk, +1 for 1-based)
         xor dh, dh 		    ; head = 0
         mov dl, DISK_SDA 		; drive
         mov bx, FAT_SEGMENT 		; segment to load it to
@@ -51,9 +51,22 @@ find_file_kernel:
         ; we finished finding the kernel...
         ; so where is it?
         ; di is the location of the location, so [di] is the location
+        mov ax, FAT_SEGMENT
+        mov ds, ax
+        mov es, ax
         mov word cx, [di] ; ax = lowclust - TODO highclust - this is probably highclust x 0x10000 + lowclust - for now we assume it's in the first 32M.
 
-        ;;;; Let's debug here? Did this work or did it get pushed? Are we going to have to swap the endianness?
+        ; We need to add all the way to the proper offset.
+        
+        ; FAT started at 0x13 sectors * 0x200 bytes per sector = 0x2600 bytes into partition (0x2800 bytes into disk)
+        ; The entry was found at 0x283a, so 0x003a from the start of the FAT.
+        ; 
+        ; FAT           Bytes from disk     Sectors from disk       Bytes from part     Sectors from part   Bytes From FAT start    Sectors from FAT start
+        ; FAT start     0x2800              0x14                    0x2600              0x13                0                       0
+        ; FAT end       0x6400              0x32                    0x6200              0x31                0x3c00                  0x18
+        ; 0x03 0x00     0x6a00              0x35                    0x6800              0x34                0x4200                  0x21
+        ; 0x05 0x00     0x6e00              0x37                    0x6c00              0x36                0x4600                  0x23
+        ; 0x06 0x00     0x7000              0x38                    0x6e00              0x37                0x4800                  0x24
 
         ; if lowclust only the location could only be up to 128K! This is NOT always guaranteed so we need to use both!
 
@@ -69,10 +82,11 @@ find_file_kernel:
         ; for that it's in a part...
         ;dec cx
 
-        add cx, 0x36 ; where does this come from?
+        add cx, 0x33 ; jump over the fat (end of fat = 0x32, + 1 for MBR)
 
-        ; add cx, 0x05
+        ; now cl points to the correct file sector.
 
+        
             ; hey you know what? fuck it. Let's just look for a signature from the kernel and then just go jump to it.
             ; And you know what also... let's just do that in the mbr? Can that happen? Can that therefore be jumped to by different parts of code?
 

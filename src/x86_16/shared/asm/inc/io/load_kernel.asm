@@ -6,7 +6,7 @@ load_kernel:
         mov si, progress_read_kernel
         call write_string
         mov ah, DISK_READ_SECTORS        ; routine
-        mov al, 0x40        ; maximum filesize in sectors = 64k / 512 = 0x80 - sectors to read
+        mov al, 0x80        ; maximum filesize in sectors = 64k / 512 = 0x80 - sectors to read
         ;xor ch, ch 	; Cylinder 8/10 = 0
         ;mov cl, 54  ; Cylinder 2/10 Sector 6 ; todo get this
         xor dh, dh		    ; Head = 0

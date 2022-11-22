@@ -141,7 +141,7 @@ src/x86_32/boot/asm/inc/loader.o: src/x86_32/boot/asm/inc/loader.asm
 
 build/bios/root/kern32c.bin: build/bios/root $(OBJFILES32)
 	$(LD) $(LDFLAGS32BIN) -o build/bios/root/kern32cp.elf $(OBJFILES32)
-	objcopy -O binary -j .text build/bios/root/kern32cp.elf build/bios/root/kern32c.bin
+	objcopy -O binary -j .text -j .rodata -j .data -j .bss build/bios/root/kern32cp.elf build/bios/root/kern32c.bin
 
 build/bios/root/kern32c.elf: build/bios/root $(OBJFILES32)
 	$(LD) $(LDFLAGS32ELF) -o build/bios/root/kern32c.elf $(OBJFILES32)

@@ -5,20 +5,20 @@ write_hex:
         mov bl, al ; bl now 0x41 for example
         shr bl, 4 ; bl now 0x04
         ; and bl, 0x0f ; make sure!!!
-        cmp bl, 0x0a
+        cmp bl, ASCII_HEX_LETTER_START
         jl .cont
-        add bl, 0x07
+        add bl, ASCII_HEX_NUMBER_TO_LETTER_DIFF
     .cont: 
-        add bl, 0x30
+        add bl, ASCII_HEX_NUMBER_OFFSET
         ; bl now correct
         ; bh can now be the higher byte
         mov bh, al ; bl now 0xba
         and bh, 0x0f ; bl now 0x0a
-        cmp bh, 0x0a
+        cmp bh, ASCII_HEX_LETTER_START
         jl .islesst
-        add bh, 0x07
+        add bh, ASCII_HEX_NUMBER_TO_LETTER_DIFF
     .islesst:
-        add bh, 0x30
+        add bh, ASCII_HEX_NUMBER_OFFSET
         ; bx now correct
         mov al, bl
         mov ah, VIDEO_WRITE_CHAR_TTY; print

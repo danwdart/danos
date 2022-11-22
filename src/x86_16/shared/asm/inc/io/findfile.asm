@@ -33,9 +33,9 @@ findfile:
         mov si, progress_found_kernel_location
         call write_string
         ; heck yeah, we found it!
-        ; now di is at the character at the end of its first occurrence.
-        ; We need to add all the way to the proper offset.
-        add di, 0x0f ; That should be enough! di should now point to where we should look for the file. At least the low part.
+        ; now es:di is at the character at the end of its first occurrence.
+        
+        add di, 0x0f ; That should be enough! es:di should now point to where we should look for the file. At least the low part.
         stc
         ret
 
