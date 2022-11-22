@@ -1,4 +1,8 @@
 /* We can no longer use BIOS calls */
+extern void _start() {
+    print("Hello from C! I am 32-bit protected mode C.");
+}
+
 unsigned char *videoram = (unsigned char *)0xB8000;
 unsigned short vrpos = 0;
 
@@ -21,8 +25,4 @@ void print(char* string) {
         printc(string[i]);
         i++;
     } while ('\0' != string[i]);
-}
-
-extern void loader() {
-    print("Hello from C! I am 32-bit protected mode C.");
 }

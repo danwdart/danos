@@ -8,7 +8,7 @@ HEADERPATH = ${EFIDIR}/include/efi
 HEADERS = -I ${HEADERPATH} -I ${HEADERPATH}/x86_64
 LIBDIR = ${EFIDIR}/lib
 LD	= ld
-LDFLAGS32BIN = -m elf_i386
+LDFLAGS32BIN = -m elf_i386 -T src/x86_32/boot/loadable16.ld
 LDFLAGS32ELF = -m elf_i386 -T src/x86_32/kernel/linker.ld 
 LDFLAGS64BIN = -m elf_x86_64
 LDFLAGS64ELF = -m elf_x86_64
@@ -139,8 +139,15 @@ src/x86_32/kernel/c/main.o: src/x86_32/kernel/c/main.c
 src/x86_32/boot/asm/inc/loader.o: src/x86_32/boot/asm/inc/loader.asm
 	$(NASM) $(NASMFLAGS32ELF) -o $@ $<
 
+src/x86_32/boot/c/kernel32.o: src/x86_32/boot/c/kernel32.c
+	$(CC) $(CFLAGS32) -o $@ -c $<
+
+build/bios/root/flat32c.bin: build/bios/root src/x86_32/boot/c/kernel32.o
+	$(LD) $(LDFLAGS32BIN) -o build/bios/root/flat32cp.elf src/x86_32/boot/c/kernel32.o
+	objcopy -O binary -j .text -j .rodata -j .data -j .bss build/bios/root/flat32cp.elf build/bios/root/flat32c.bin
+
 build/bios/root/kern32c.bin: build/bios/root $(OBJFILES32)
-	$(LD) $(LDFLAGS32BIN) -o build/bios/root/kern32cp.elf $(OBJFILES32)
+	$(LD) $(LDFLAGS32ELF) -o build/bios/root/kern32cp.elf $(OBJFILES32)
 	objcopy -O binary -j .text -j .rodata -j .data -j .bss build/bios/root/kern32cp.elf build/bios/root/kern32c.bin
 
 build/bios/root/kern32c.elf: build/bios/root $(OBJFILES32)
@@ -163,13 +170,13 @@ build/bios/x86_16/hd.bin: build/bios/x86_16 build/bios/x86_16/mbr.bin build/bios
 build/bios/x86_16/mbr.bin: build/bios/x86_16 src/x86_16/boot/asm/mbr.asm
 	$(NASM) $(NASMFLAGS16) src/x86_16/boot/asm/mbr.asm -o build/bios/x86_16/mbr.bin
 	
-build/bios/x86_16/fat12.bin: build/bios/x86_16 build/bios/x86_16/vbr.bin build/bios/root/kern16a.bin build/bios/root/kern32c.elf build/bios/root/kern32c.bin build/bios/root/kern32a.bin
+build/bios/x86_16/fat12.bin: build/bios/x86_16 build/bios/x86_16/vbr.bin build/bios/root/kern16a.bin build/bios/root/kern32a.bin build/bios/root/flat32c.bin # build/bios/root/kern32c.bin  build/bios/root/kern32c.elf 
 	dd if=/dev/zero of=build/bios/x86_16/fat12.bin count=2K
 	dd if=build/bios/x86_16/vbr.bin of=build/bios/x86_16/fat12.bin conv=notrunc
 	mkdir -p mounts/bios/x86_16/
 	sudo umount mounts/bios/x86_16/ || echo "ok"
 	sudo mount -oloop build/bios/x86_16/fat12.bin mounts/bios/x86_16/
-	sudo cp -r build/bios/root/*.bin mounts/bios/x86_16/
+	sudo cp -r build/bios/root/kern16a.bin build/bios/root/kern32a.bin build/bios/root/flat32c.bin mounts/bios/x86_16/
 	sync
 	sudo umount mounts/bios/x86_16/
 	rm -rf mounts

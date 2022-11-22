@@ -9,8 +9,6 @@
 %define KERNEL32_SEGMENT 0x0e00
 %define KERNEL32_OFFSET 0x0000
 %define KERNEL32_ADDR 0x0000e000
-%define MEM_SEGMENT 0x2000
-%define MEM_OFFSET 0x0000
 
 %define DISK_SDA 0x80 ; this is bl - back this up and restore it to boot from anywhere.
 %define DISK_CYLINDER 0b00000000

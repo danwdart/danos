@@ -2,3 +2,5 @@
 build
 .direnv
 *.fd
+*.o
+*.elf
