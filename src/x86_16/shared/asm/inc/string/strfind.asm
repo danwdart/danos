@@ -7,12 +7,9 @@
 ; returns: carry bit if ok, es:di to beginning of match.
 ; clobbers: cx, dx, equal bit. (for now... is that reasonably restorable? pusha/pushf/popf/popa?)
 ; interrupt flag status: unchanged (should we clear as we go through here?)
-findfile:
+strfind:
     ; backup si into dx (so we can check from the beginning)
     mov dx, si
-    mov si, progress_find_kernel_location
-    call write_string
-    mov si, dx
     .startfind:
         ; end of check?
         cmp byte [si], 0 ; nothing left to check, end of string
@@ -28,19 +25,11 @@ findfile:
         ; restore si (check again from the beginning)
         mov si, dx
         jmp .startfind
-
     .success:
-        mov si, progress_found_kernel_location
-        call write_string
         ; heck yeah, we found it!
         ; now es:di is at the character at the end of its first occurrence.
-        
-        add di, 0x0f ; That should be enough! es:di should now point to where we should look for the file. At least the low part.
         stc
         ret
-
     .fail:
-        mov si, err_finding_kernel_location
-        call write_string
         clc
         ret

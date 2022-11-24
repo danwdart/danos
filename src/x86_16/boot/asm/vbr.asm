@@ -52,7 +52,7 @@ code:
 %include "video/write_string.asm"
 %include "io/reset_disk.asm"
 %include "io/find_file_kernel.asm"
-%include "io/findfile.asm"
+%include "string/strfind.asm"
 %include "video/write_char.asm"
 %include "video/write_chars.asm"
 %include "io/load_kernel.asm"

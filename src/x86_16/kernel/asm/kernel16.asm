@@ -57,7 +57,7 @@ print_welcome:
 %include "io/load_kernel32.asm"
 %include "io/find_file_kernel.asm"
 %include "io/reset_disk.asm"
-%include "io/findfile.asm"
+%include "string/strfind.asm"
 
 %include "protmode/setup_protmode.asm"
 %include "protmode/call_kernel32.asm"

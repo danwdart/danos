@@ -24,12 +24,24 @@ find_file_kernel:
     .ok:
         mov cx, 0xffff ; max length to find - must be in first 64kB
         mov di, bx ; offset to find it from (implicit segment)
+        
+        mov si, progress_find_kernel_location
+        call write_string
+
         mov si, filename
-        call findfile
+        call strfind
+
         jc .win
         ; we didn't find anything, we can't load our kernel, oh woe!
+        mov si, err_finding_kernel_location
+        call write_string
         jmp $
     .win:
+        mov si, progress_found_kernel_location
+        call write_string
+
+        add di, 0x0f ; That should be enough! es:di should now point to where we should look for the file. At least the low part.
+
         ; everything is in es:di, we want it in ds:si
         ; The next two bytes are the location in secateurs.
 
