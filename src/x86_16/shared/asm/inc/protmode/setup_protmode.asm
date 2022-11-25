@@ -1,3 +1,6 @@
+; reads: ioport 0x92,
+; clobbers: ax, eax, 
+; writes: ioport 0x92, 
 setup_protmode:
     cli ; timer will fault otherwise
     
@@ -11,7 +14,7 @@ setup_protmode:
 
     lgdt [GDT_PTR]
 
-    mov eax, 0x11 ; paging disabled, protection bit enabled. bit4, the extension type is always 1
+    mov eax, 0x0000000000010001 ; paging disabled, protection bit enabled. bit4, the extension type is always 1
     mov cr0, eax
 
     ret

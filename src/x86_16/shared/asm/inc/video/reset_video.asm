@@ -1,3 +1,6 @@
+; reads:
+; clobbers: ax
+; writes:
 reset_video:
     mov ah, VIDEO_SET_MODE
     mov al, VIDEO_MODE_TEXT_80X25

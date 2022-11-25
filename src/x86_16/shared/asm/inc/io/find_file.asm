@@ -1,9 +1,12 @@
-find_file_kernel:
+; reads:
+; clobbers: si, di, ax, cx, dx, bx, ds, es, 
+; writes: carry, cx for location
+find_file:
     call reset_disk
 
     .read:
-        mov si, progress_read_fat
-        call write_string
+        ; mov si, progress_read_fat
+        ; call write_string
         mov ah, DISK_READ_SECTORS        ; routine
         mov al, 0x1e         ; [NumberOfFats]*[SectorsPerFat]+[ReservedForBoot] ; so we load enough to go from the first fat
         xor ch, ch 		    ; track = 0
@@ -15,30 +18,20 @@ find_file_kernel:
         mov bx, FAT_OFFSET 		; offset (add to seg)        
         int INT_BIOS_DISK
         jnc .ok
-    
     .error:
-        cli
-        hlt
-        jmp $
-
+        stc
+        ret
     .ok:
         mov cx, 0xffff ; max length to find - must be in first 64kB
         mov di, bx ; offset to find it from (implicit segment)
-        
-        mov si, progress_find_kernel_location
-        call write_string
-
-        mov si, filename
         call strfind
-
-        jc .win
+        jnc .win
         ; we didn't find anything, we can't load our kernel, oh woe!
-        mov si, err_finding_kernel_location
-        call write_string
-        jmp $
+        stc
+        ret
     .win:
-        mov si, progress_found_kernel_location
-        call write_string
+        ;mov si, progress_found_file_location
+        ;call write_string
 
         add di, 0x0f ; That should be enough! es:di should now point to where we should look for the file. At least the low part.
 
@@ -125,4 +118,7 @@ find_file_kernel:
         ;jmp $
 
         ; we're ready to load the kernel... let's go find it on disk in case the file pointed to somewhere we hadn't loaded.
+
+        ;clz ; clear zero bit
+        clc
         ret

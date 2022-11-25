@@ -1,5 +1,6 @@
-; params: cx, ds:si
+; reads: cx, ds:si
 ; clobbers: al, sets cx to 0
+; writes:
 write_chars:
     .wchs:
         lodsb

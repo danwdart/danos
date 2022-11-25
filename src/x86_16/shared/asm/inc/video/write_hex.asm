@@ -1,5 +1,6 @@
-; input: al
+; reads: al
 ; clobbers: bl, ah
+; writes:
 write_hex:
     .write:
         mov bl, al ; bl now 0x41 for example

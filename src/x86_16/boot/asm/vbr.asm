@@ -29,48 +29,73 @@ signature:
     SysId: db 'FAT12   '
 
 init:
-        cli				; Clear interrupts
-        xor ax, ax ; set to 0
-        mov ss, ax 		    ; Set stack segment and pointer
-        mov sp, 0x0FFFF
-        sti             	; Restore interrupts
-        cld         		; stack goes upwards   
-        mov ax, VBR_SEGMENT ; Set all segments to match where booter is loaded - nb this has already been added to es
-        mov ds, ax    
-        mov es, ax    
-        mov fs, ax    
-        mov gs, ax
+    cli				; Clear interrupts
+    xor ax, ax ; set to 0
+    mov ss, ax 		    ; Set stack segment and pointer
+    mov sp, 0x0FFFF
+    sti         	; Restore interrupts
+    cld     		; stack goes upwards   
+    mov ax, VBR_SEGMENT ; Set all segments to match where booter is loaded - nb this has already been added to es
+    mov ds, ax
+    mov es, ax
+    mov fs, ax
+    mov gs, ax
 code:
-        ;mov si, welcome
-        ;call write_string   
-        call find_file_kernel
-        
-        call load_kernel
-        
-        jmp call_kernel
+    ;mov si, welcome
+    ;call write_string
+    mov si, filename
+    call find_file
+
+    jc .cant_find
+    
+    mov bx, KERNEL_SEGMENT 		; segment to load it to
+    mov es, bx
+    mov bx, KERNEL_OFFSET 		; offset (add to seg)
+
+    call load_file
+
+    jc .err_load
+    
+    jmp call_file
+
+    .cant_find:
+        mov si, err_finding_file_location
+        call write_string
+        cli
+        hlt
+        jmp $
+
+    .err_load:
+        mov si, err_read_file
+        call write_string
+        cli
+        hlt
+        jmp $
+
+    jmp $
 
 %include "video/write_string.asm"
 %include "io/reset_disk.asm"
-%include "io/find_file_kernel.asm"
+%include "io/find_file.asm"
 %include "string/strfind.asm"
 %include "video/write_char.asm"
 %include "video/write_chars.asm"
-%include "io/load_kernel.asm"
-%include "io/call_kernel.asm"
+%include "io/load_file.asm" ; no ret in here?
+%include "io/call_file.asm" ; has to be last???
 
 data:
-        progress_read_fat db "Reading FAT", 0x0d, 0x0a, 0
-        progress_find_kernel_location db "Finding kernel...", 0x0d, 0x0a, 0
-        progress_found_kernel_location db "Found kernel", 0x0d, 0x0a, 0
-        progress_read_kernel db "Reading kernel", 0x0d, 0x0a, 0
-        progress_calling_kernel db "Calling kernel...", 0x0d, 0x0a, 0
-        err_read_fat db "Can't read FAT", 0x0d, 0x0a, 0
-        err_finding_kernel_location db "Can't find kernel", 0x0d, 0x0a, 0
-        err_read_kernel db "Can't read kernel", 0x0d, 0x0a, 0
-        welcome db "DanLoader stage 2 booting...", 0x0d, 0x0a, 0
-        filename db 'KERN16A BIN', 0
-        newline db 0x0a, 0x0d, 0
+    progress_read_fat db "Reading FAT", 0x0d, 0x0a, 0
+    progress_find_file_location db "Finding kernel...", 0x0d, 0x0a, 0
+    progress_found_file_location db "Found kernel", 0x0d, 0x0a, 0
+    progress_read_file db "Reading kernel", 0x0d, 0x0a, 0
+    progress_calling_file db "Calling kernel...", 0x0d, 0x0a, 0
+    err_read_fat db "Can't read FAT", 0x0d, 0x0a, 0
+    err_finding_file_location db "Can't find kernel", 0x0d, 0x0a, 0
+    err_read_file db "Can't read file!", 0x0d, 0x0a, 0
+    welcome db "DanLoader stage 2 booting...", 0x0d, 0x0a, 0
+    filename db 'KERN16A BIN', 0
+    newline db 0x0a, 0x0d, 0
 
 bootlabel:
-        times 510-($-$$) db 0
-        dw 0AA55h ; bootsector
+    times 510-($-$$) db 0
+    dw 0AA55h ; bootsector

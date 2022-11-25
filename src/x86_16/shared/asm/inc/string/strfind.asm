@@ -7,6 +7,10 @@
 ; returns: carry bit if ok, es:di to beginning of match.
 ; clobbers: cx, dx, equal bit. (for now... is that reasonably restorable? pusha/pushf/popf/popa?)
 ; interrupt flag status: unchanged (should we clear as we go through here?)
+
+; reads: si, cx
+; clobbers: dx, cx
+; writes: di, carry
 strfind:
     ; backup si into dx (so we can check from the beginning)
     mov dx, si
@@ -28,8 +32,8 @@ strfind:
     .success:
         ; heck yeah, we found it!
         ; now es:di is at the character at the end of its first occurrence.
-        stc
+        clc
         ret
     .fail:
-        clc
+        stc
         ret

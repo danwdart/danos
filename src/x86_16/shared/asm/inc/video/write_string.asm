@@ -1,5 +1,6 @@
-; params: ds:si
+; reads: ds:si
 ; clobbers: al
+; writes:
 write_string:
         mov ah, VIDEO_WRITE_CHAR_TTY
     .char:
