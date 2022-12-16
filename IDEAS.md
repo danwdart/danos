@@ -8,7 +8,7 @@ MBR @ 07c0:0000h
 v
 Partition bootsector @ 1000:0000h / 07c0:000h
 v
-Kernel @ 2000:0000h > Modules [3000:0000h] 
+Kernel @ 2000:0000h > Modules [3000:0000h]
 v
 Interpreter - directly after kernel
 
@@ -48,7 +48,7 @@ The filesystem module will expose a virtual file structure:
 			workspace
 			window
 
-	Applications - invokable		
+	Applications - invokable
 Floppy0:/
 [Usb0a,label]:/
 
@@ -58,3 +58,15 @@ System:/ - In-memory virtual FS
 		Active
 		Resident
 	Files - open files are copied here for peeking/poking
+
+Counter app for binary set bgcolours
+Timing button press game
+Basic like or forth language
+Text editor
+Com runner
+Emulator for arm or gameboy
+Shift ctrl flags with keys
+
+file access like:
+
+Uppercase, pad to 8, change dot to space
