@@ -3,13 +3,13 @@ CFLAGS32	= -m32 -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlib
 CFLAGS64	= -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Isrc/x86_64/kernel/c/lib -Isrc/x86_64/boot/c/lib
 CFLAGS64EFI = -Wall -Werror -fno-stack-protector -fpic -fshort-wchar -mno-red-zone -DEFI_FUNCTION_WRAPPER
 CFLAGS64EFINEW = -Wall -Werror -fno-stack-protector -fpic -ffreestanding -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args
-EFIDIR = /nix/store/37j8p8s6sj7qs50mmhi400afzmr756jv-gnu-efi-3.0.15
+EFIDIR = /nix/store/vm982y77hrc626va4mcpr73vsskqgvll-gnu-efi-3.0.15
 HEADERPATH = ${EFIDIR}/include/efi
 HEADERS = -I ${HEADERPATH} -I ${HEADERPATH}/x86_64
 LIBDIR = ${EFIDIR}/lib
 LD	= ld
 LDFLAGS32BIN = -m elf_i386 -T src/x86_32/boot/loadable16.ld
-LDFLAGS32ELF = -m elf_i386 -T src/x86_32/kernel/linker.ld 
+LDFLAGS32ELF = -m elf_i386 -T src/x86_32/kernel/linker.ld
 LDFLAGS64BIN = -m elf_x86_64
 LDFLAGS64ELF = -m elf_x86_64
 LDFLAGS64EFI = -nostdlib -znocombreloc -T ${LIBDIR}/elf_x86_64_efi.lds -shared -Bsymbolic -L ${LIBDIR} -l:libgnuefi.a -l:libefi.a
@@ -94,8 +94,15 @@ build/bios/x86_64: build/bios
 	mkdir -pv build/bios/x86_64
 
 build/bios/x86_64/hd.bin: build/bios/x86_64 build/bios/x86_64/fat32.bin
+	dd if=/dev/zero of=build/bios/x86_64/hd.bin bs=1M count=32
+	sgdisk -o -n1 -t1:ef00 build/bios/x86_64/hd.bin
+	dd if=build/bios/x86_64/fat32.bin of=build/bios/x86_64/hd.bin seek=2048 conv=notrunc
 
 build/bios/x86_64/fat32.bin: build/bios/x86_64 build/bios/root/kern64c.elf build/bios/root/kern64c.bin
+	dd if=/dev/zero of=build/bios/x86_64/fat32.bin bs=1M count=31
+	mkfs.vfat -F32 build/bios/x86_64/fat32.bin # mformat -i build/bios/x86_64/fat32.bin -h 32 -t 32 -n 64 -c 1
+	mmd -i build/uefi/fat32.bin ::/boot
+	mcopy -i build/uefi/fat32.bin build/bios/root/kern64c.elf ::/boot/kernel.elf
 
 build/bios/root/kern64c.elf: build/bios/root
 
@@ -169,8 +176,8 @@ build/bios/x86_16/hd.bin: build/bios/x86_16 build/bios/x86_16/mbr.bin build/bios
 
 build/bios/x86_16/mbr.bin: build/bios/x86_16 src/x86_16/boot/asm/mbr.asm
 	$(NASM) $(NASMFLAGS16) src/x86_16/boot/asm/mbr.asm -o build/bios/x86_16/mbr.bin
-	
-build/bios/x86_16/fat12.bin: build/bios/x86_16 build/bios/x86_16/vbr.bin build/bios/root/kern16a.bin build/bios/root/kern32a.bin build/bios/root/flat32c.bin # build/bios/root/kern32c.bin  build/bios/root/kern32c.elf 
+
+build/bios/x86_16/fat12.bin: build/bios/x86_16 build/bios/x86_16/vbr.bin build/bios/root/kern16a.bin build/bios/root/kern32a.bin build/bios/root/flat32c.bin # build/bios/root/kern32c.bin  build/bios/root/kern32c.elf
 	dd if=/dev/zero of=build/bios/x86_16/fat12.bin count=2K
 	dd if=build/bios/x86_16/vbr.bin of=build/bios/x86_16/fat12.bin conv=notrunc
 	mkdir -p mounts/bios/x86_16/
@@ -205,22 +212,22 @@ all: x86_64_all x86_32_all x86_16_all
 
 # BEGIN QEMU
 
-qemu16a:
+qemu16a: build/bios/x86_16/hd.bin
 	qemu-system-i386 -m 8 build/bios/x86_16/hd.bin
 
-qemu32c:
+qemu32c: build/bios/x86_32/hd.bin
 	qemu-system-i386 -m 64 build/bios/x86_32/hd.bin
 
-qemu32c_direct:
+qemu32c_direct: build/bios/root/kern32c.elf
 	qemu-system-i386 -m 64 -kernel build/bios/root/kern32c.elf # build/bios/x86_32/hd.bin
 
-qemu64c:
+qemu64c: build/bios/x86_64/hd.bin
 	qemu-system-x86_64 -enable-kvm -cpu qemu64 -drive file=build/bios/x86_64/hd.bin,format=raw
 
-qemu64c_direct:
+qemu64c_direct: build/bios/x86_64/hd.bin
 	qemu-system-x86_64 -enable-kvm -cpu qemu64 -kernel build/bios/x86_64/kern32c.elf -drive file=build/bios/x86_64/hd.bin,format=raw
 
-qemu64c_uefi:
+qemu64c_uefi: build/uefi/hd.bin
 	qemu-system-x86_64 -enable-kvm -cpu qemu64 -pflash OVMF_CODE.fd -pflash OVMF_VARS.fd -drive file=build/uefi/hd.bin,format=raw
 
 # END QEMU
