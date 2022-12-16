@@ -58,7 +58,7 @@ restructure
         /root
 
 have kern16a choose the kernel to next load and choose whether to prot or long directly
-    
+
 
 have kern32a/kern32c choose the kernel to next load and choose whether to stay or long directly
     prog16.bin (go back to realmode)
