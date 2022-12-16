@@ -32,9 +32,9 @@ init:
     cli				; Clear interrupts
     xor ax, ax ; set to 0
     mov ss, ax 		    ; Set stack segment and pointer
-    mov sp, 0x0FFFF
+    mov sp, 0x0FFF
     sti         	; Restore interrupts
-    cld     		; stack goes upwards   
+    cld     		; stack goes upwards
     mov ax, VBR_SEGMENT ; Set all segments to match where booter is loaded - nb this has already been added to es
     mov ds, ax
     mov es, ax
@@ -47,15 +47,11 @@ code:
     call find_file
 
     jc .cant_find
-    
-    mov bx, KERNEL_SEGMENT 		; segment to load it to
-    mov es, bx
-    mov bx, KERNEL_OFFSET 		; offset (add to seg)
 
     call load_file
 
     jc .err_load
-    
+
     jmp call_file
 
     .cant_find:

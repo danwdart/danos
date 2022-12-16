@@ -18,7 +18,7 @@ char sc2as(unsigned char sc) {
     sc -= 0x81;
     return kmap[sc];
 }
-    
+
 char getsc_poll(void) {
     while (1 == (inb(PSSTAT) & 0xfe)) { }
     return inb(PSDATA);

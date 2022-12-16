@@ -15,5 +15,5 @@ _start:
     jmp $
 
     ; call cpuid
-    
+
     ; jmp enter_longmode

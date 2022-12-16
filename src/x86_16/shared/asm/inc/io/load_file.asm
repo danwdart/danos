@@ -16,3 +16,4 @@ load_file:
         xor dh, dh		    ; Head = 0
         mov dl, DISK_SDA 		; drive ; TODO get backed up
         int INT_BIOS_DISK
+        ret

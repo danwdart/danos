@@ -9,7 +9,7 @@ write_hex:
         cmp bl, ASCII_HEX_LETTER_START
         jl .cont
         add bl, ASCII_HEX_NUMBER_TO_LETTER_DIFF
-    .cont: 
+    .cont:
         add bl, ASCII_HEX_NUMBER_OFFSET
         ; bl now correct
         ; bh can now be the higher byte
@@ -44,7 +44,7 @@ write_hex:
 ;    .isless:
 ;        add bl, ASCII_HEX_NUMBER_OFFSET ; e.g. 0x04 + 0x30 = 0x34 = "4"
 ;        jmp .cont
-;    .cont: 
+;    .cont:
 ;        ; bl now correct
 ;        ; bh can now be the higher byte
 ;        mov bh, al ; bl now 0xba

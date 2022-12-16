@@ -26,7 +26,7 @@ isr_common_stub:
    mov gs, ax
 
    ; Restore the state
-   popa 
+   popa
    add esp, 8     ; Cleans up the pushed error code and pushed ISR number
    sti
    ; Goodbye!

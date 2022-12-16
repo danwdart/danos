@@ -1,9 +1,9 @@
 ; reads: ioport 0x92,
-; clobbers: ax, eax, 
-; writes: ioport 0x92, 
+; clobbers: ax, eax,
+; writes: ioport 0x92,
 setup_protmode:
     cli ; timer will fault otherwise
-    
+
     ; fast a20
     in al, 0x92
     or al, 0x02

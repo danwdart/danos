@@ -19,7 +19,7 @@ static void init_gdt()
 
    // Each gate is set from 0 - 4G
    gdt_set_gate(0, 0, 0, 0, 0);                // Null segment - has to be there - bleh
-   // Configs - 
+   // Configs -
    // All granularities are 1k, 32b, SegLen 256
    // Present, ring 0, DT1, type 10
    gdt_set_gate(1, 0, 0xFFFFFFFF, 0b10011010, 0b11001111); // Code segment - runnable by root

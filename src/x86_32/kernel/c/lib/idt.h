@@ -3,9 +3,9 @@ struct idt_entry_struct
 {
    uint16_t base_lo;             // The lower 16 bits of the address to jump to when this interrupt fires.
    uint16_t sel;                 // Kernel segment selector.
-   uint8_t  always0;             
-   uint8_t  flags;    			// [P,DPL(ring),00110]           
-   uint16_t base_hi;             
+   uint8_t  always0;
+   uint8_t  flags;    			// [P,DPL(ring),00110]
+   uint16_t base_hi;
 } __attribute__((packed));
 typedef struct idt_entry_struct idt_entry_t;
 

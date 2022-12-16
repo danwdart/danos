@@ -34,7 +34,7 @@ bksp:
 
 writeit:
     call write_char
-    
+
     jmp kb_test
 
 loop:

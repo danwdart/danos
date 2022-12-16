@@ -13,17 +13,17 @@
 kernel_start:
     .setup_stack:
         cli                     ; Clear interrupts
-    
+
         xor ax, ax ; set to 0
         mov ss, ax              ; Set stack segment and pointer
-        mov sp, 0xFFFF          ; Stack goes from 0000:ffff downwards now (bottom 64k)
-    
+        mov sp, 0x0FFF          ; Stack goes from 0000:ffff downwards now (bottom 64k)
+
         sti                     ; Restore interrupts
         cld                     ; stack goes upwards
-    
+
     .setup_segs:
         mov ax, KERNEL_SEGMENT  ; Set all segments to match where kernel is loaded
-        
+
         ; mov cs, ax ; this was already pushed, so I don't need to reset it...???
         mov ds, ax
         mov es, ax
@@ -78,6 +78,11 @@ print_cli:
 
         call process_cmd
 
+        mov di, cmd_buffer
+        mov al, 0
+        mov cx, 64
+        rep stosb
+
         jmp print_cli
 
     .bksp:
@@ -91,7 +96,7 @@ print_cli:
 
     .writeit:
         call write_char
-        
+
         jmp .kb_check
 
 process_cmd:
@@ -100,7 +105,7 @@ process_cmd:
         cmp byte [si], 0
         jne .continue
         ret ; retne?
-    
+
     .continue:
         mov si, cmd_ver
         mov di, cmd_buffer
@@ -116,18 +121,22 @@ process_cmd:
         mov di, cmd_buffer ; will have been incremented a fair bit
         call str_starts_with
         jc .is_help
-        
+
         mov si, cmd_echo
         mov di, cmd_buffer
         call str_starts_with
         jc .is_echo
 
         ; debug
-        jmp .otherwise
+        ;jmp .otherwise
 
     .filename_to_run:
+        ;mov si, cmd_buffer
+        ;call write_string
+        ;jmp .otherwise
+        mov si, cmd_buffer
         call find_file
-        
+
         ; jc .problem_finding_file - probably no such file! Let's move on.
         jc .otherwise
 
@@ -193,7 +202,7 @@ process_cmd:
 ;        jmp $;
 
 ;    .noproblem:
-    
+
 ;    call reset_video;
 
 ;    call setup_protmode
@@ -247,7 +256,7 @@ constants_for_loading_kernel32:
     err_end_of_kernel db "You've reached the end of the kernel. You should not be here.", 0x0d, 0x0a, 0
 
 std_constants:
-    welcome db "Welcome to DanOS. Loaded 16-bit kernel v0.2.", 0x0a, 0x0d, 0x0a, 0x0d, 0x0 
+    welcome db "Welcome to DanOS. Loaded 16-bit kernel v0.2.", 0x0a, 0x0d, 0x0a, 0x0d, 0x0
     prompt db '(kern) hd0a:/# ', 0 ;  (DANOS FILES, FAT12) ; HardDisk
     cmd_help db "help", 0
     cmd_echo db "echo", 0
@@ -258,7 +267,7 @@ std_constants:
     result_ver db "DanOS version 0.2, at your service!", 0x0a, 0x0d, 0
     result_unknown_command db "Sorry, I don't know what that means.", 0x0a, 0x0d, 0
     cmd_buffer times 64 db 0
-    cmd_buffer_ptr db 0 
+    cmd_buffer_ptr db 0
     newline db 0x0a, 0x0d, 0
 
 ; pad with zeroes

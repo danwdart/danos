@@ -1,5 +1,5 @@
 ; reads:
-; clobbers: si, di, ax, cx, dx, bx, ds, es, 
+; clobbers: si, di, ax, cx, dx, bx, ds, es,
 ; writes: carry, cx for location
 find_file:
     call reset_disk
@@ -15,7 +15,7 @@ find_file:
         mov dl, DISK_SDA 		; drive
         mov bx, FAT_SEGMENT 		; segment to load it to
         mov es, bx
-        mov bx, FAT_OFFSET 		; offset (add to seg)        
+        mov bx, FAT_OFFSET 		; offset (add to seg)
         int INT_BIOS_DISK
         jnc .ok
     .error:
@@ -24,6 +24,7 @@ find_file:
     .ok:
         mov cx, 0xffff ; max length to find - must be in first 64kB
         mov di, bx ; offset to find it from (implicit segment)
+
         call strfind
         jnc .win
         ; we didn't find anything, we can't load our kernel, oh woe!
@@ -62,10 +63,10 @@ find_file:
         mov word cx, [di] ; ax = lowclust - TODO highclust - this is probably highclust x 0x10000 + lowclust - for now we assume it's in the first 32M.
 
         ; We need to add all the way to the proper offset.
-        
+
         ; FAT started at 0x13 sectors * 0x200 bytes per sector = 0x2600 bytes into partition (0x2800 bytes into disk)
         ; The entry was found at 0x283a, so 0x003a from the start of the FAT.
-        ; 
+        ;
         ; FAT           Bytes from disk     Sectors from disk       Bytes from part     Sectors from part   Bytes From FAT start    Sectors from FAT start
         ; FAT start     0x2800              0x14                    0x2600              0x13                0                       0
         ; FAT end       0x6400              0x32                    0x6200              0x31                0x3c00                  0x18
@@ -80,7 +81,7 @@ find_file:
 
         ; actually we had to look at sector 53 from start of part! How's that from 19? Extra 35... that's still 31 more than I expected.
         ; Where did that 31 come from? First past a bunch more reserved sectors? Relative to the last file on disk?
-        
+
         ; for where it is...
         ;add cx, 49
 
@@ -91,7 +92,7 @@ find_file:
 
         ; now cl points to the correct file sector.
 
-        
+
             ; hey you know what? fuck it. Let's just look for a signature from the kernel and then just go jump to it.
             ; And you know what also... let's just do that in the mbr? Can that happen? Can that therefore be jumped to by different parts of code?
 
@@ -99,7 +100,7 @@ find_file:
             ; will the kernel be sector aligned, though?
 
             ; For now the initial bootsector should just be a smart booter that boots to the first partition. Is that all gonna help with EFI? Nope.
-        
+
         ; now cx is the location in sectors.
 
         ; alright, go there..
@@ -108,7 +109,7 @@ find_file:
         ; mov si, cx
 
         ; actually, what's there? Let us know.
-        
+
         ;mov cx, 0x20
         ;mov si, [di]
         ;call write_hexes
@@ -121,4 +122,8 @@ find_file:
 
         ;clz ; clear zero bit
         clc
+
+        mov ax, KERNEL_SEGMENT
+        mov ds, ax
+        mov es, ax
         ret

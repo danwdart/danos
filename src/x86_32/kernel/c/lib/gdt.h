@@ -9,7 +9,7 @@ struct gdt_entry_struct
    uint8_t  granularity;		   // Granularity flags
    // Granularity = [Granularity: 0=1,1=1024, Opsize=0=16b,1=32b, 0. Available(0), 4(SegmentLengthHigh)]
    uint8_t  base_high;           // The last 8 bits of the base.
-} __attribute__((packed));	   
+} __attribute__((packed));
 typedef struct gdt_entry_struct gdt_entry_t;
 
 // Where is our GDT - this is like a pointer

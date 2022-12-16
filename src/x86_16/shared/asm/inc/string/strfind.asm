@@ -1,6 +1,6 @@
 ; We want to find a string in another string
-; es:di = big string, ds:si = 0-term'd string, 
-; es:di e.g. 3000:0000 00 0f ff 00 00 K E R N E L 1 6 B I N 00 00 
+; es:di = big string, ds:si = 0-term'd string,
+; es:di e.g. 3000:0000 00 0f ff 00 00 K E R N E L 1 6 B I N 00 00
 ; ds:si e.g. 2000:0128 K E R N E L 1 6 B I N 00
 
 ; params: es:di = needle, ds:si = haystack, cx = max length.
