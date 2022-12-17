@@ -26,7 +26,7 @@ NASMFLAGS32ELF = -i src/x86_32/shared/asm/inc -felf
 NASMFLAGS64 = -i src/x86_64/shared/asm/inc
 RM = rm
 CKERNLIB32 = src/x86_32/kernel/c/lib
-OBJFILES32 = src/x86_32/boot/asm/inc/loader.o src/x86_32/boot/c/kernel.o ${CKERNLIB32}/video.o ${CKERNLIB32}/io.o ${CKERNLIB32}/8042.o ${CKERNLIB32}/clever.o ${CKERNLIB32}/string.o src/x86_32/kernel/c/main.o
+OBJFILES32 = src/x86_32/boot/asm/inc/loader.o src/x86_32/boot/c/multiboot.o ${CKERNLIB32}/video.o ${CKERNLIB32}/io.o ${CKERNLIB32}/8042.o ${CKERNLIB32}/clever.o ${CKERNLIB32}/string.o src/x86_32/kernel/c/main.o
 
 .PHONY: all
 
@@ -104,9 +104,13 @@ build/bios/x86_64/fat32.bin: build/bios/x86_64 build/bios/root/kern64c.elf build
 	mmd -i build/uefi/fat32.bin ::/boot
 	mcopy -i build/uefi/fat32.bin build/bios/root/kern64c.elf ::/boot/kernel.elf
 
+# TODO
 build/bios/root/kern64c.elf: build/bios/root
+	touch build/bios/root/kern64c.elf
 
+# TODO
 build/bios/root/kern64c.bin: build/bios/root
+	touch build/bios/root/kern64c.bin
 
 # END 64
 
@@ -137,7 +141,7 @@ src/x86_32/kernel/c/lib/%.o: src/x86_32/kernel/c/lib/%.c
 	echo "Compiling $@ from $< in 32-bit mode"
 	$(CC) $(CFLAGS32) -o $@ -c $<
 
-src/x86_32/boot/c/kernel.o: src/x86_32/boot/c/kernel.c
+src/x86_32/boot/c/multiboot.o: src/x86_32/boot/c/multiboot.c
 	$(CC) $(CFLAGS32) -o $@ -c $<
 
 src/x86_32/kernel/c/main.o: src/x86_32/kernel/c/main.c
@@ -146,11 +150,11 @@ src/x86_32/kernel/c/main.o: src/x86_32/kernel/c/main.c
 src/x86_32/boot/asm/inc/loader.o: src/x86_32/boot/asm/inc/loader.asm
 	$(NASM) $(NASMFLAGS32ELF) -o $@ $<
 
-src/x86_32/boot/c/kernel32.o: src/x86_32/boot/c/kernel32.c
+src/x86_32/kernel/c/kernel32.o: src/x86_32/kernel/c/kernel32.c
 	$(CC) $(CFLAGS32) -o $@ -c $<
 
-build/bios/root/flat32c.bin: build/bios/root src/x86_32/boot/c/kernel32.o
-	$(LD) $(LDFLAGS32BIN) -o build/bios/root/flat32cp.elf src/x86_32/boot/c/kernel32.o
+build/bios/root/flat32c.bin: build/bios/root src/x86_32/kernel/c/kernel32.o
+	$(LD) $(LDFLAGS32BIN) -o build/bios/root/flat32cp.elf src/x86_32/kernel/c/kernel32.o
 	objcopy -O binary -j .text -j .rodata -j .data -j .bss build/bios/root/flat32cp.elf build/bios/root/flat32c.bin
 
 build/bios/root/kern32c.bin: build/bios/root $(OBJFILES32)
