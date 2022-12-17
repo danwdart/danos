@@ -91,3 +91,5 @@ qemus:
     make qemu32c
     make qemu64a
     make qemu64c
+
+merge kernel32c and main

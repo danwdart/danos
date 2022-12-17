@@ -8,7 +8,8 @@ int main(void) {
     clear();
     print("Welcome to DanOS32!");
     print(" Thanks for choosing us!");
-    char ch = 0;
+    pssetup();
+    unsigned char ch = 0;
     while(1) {
         ch = getch_poll();
         printch(&ch, 1);
