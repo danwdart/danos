@@ -24,7 +24,7 @@ NASMFLAGS16 = -i src/x86_16/shared/asm/inc
 NASMFLAGS32BIN = -i src/x86_32/shared/asm/inc -fbin
 NASMFLAGS32ELF = -i src/x86_32/shared/asm/inc -felf
 NASMFLAGS64BIN = -i src/x86_64/shared/asm/inc -fbin
-NASMFLAGS64ELF = -i src/x86_64/shared/asm/inc -felf
+NASMFLAGS64ELF = -i src/x86_64/shared/asm/inc -felf64
 RM = rm
 CKERNLIB32 = src/x86_32/kernel/c/lib
 OBJFILES32 = src/x86_32/boot/asm/inc/multiboot.o src/x86_32/boot/c/multiboot.o ${CKERNLIB32}/video.o ${CKERNLIB32}/io.o ${CKERNLIB32}/8042.o ${CKERNLIB32}/clever.o ${CKERNLIB32}/string.o src/x86_32/kernel/c/main.o
@@ -100,22 +100,27 @@ build/bios/x86_64/hd.bin: build/bios/x86_64 build/bios/x86_64/fat32.bin
 	sgdisk -o -n1 -t1:ef00 build/bios/x86_64/hd.bin
 	dd if=build/bios/x86_64/fat32.bin of=build/bios/x86_64/hd.bin seek=2048 conv=notrunc
 
-build/bios/x86_64/fat32.bin: build/bios/x86_64 build/bios/root/kern64c.elf build/bios/root/kern64c.bin build/bios/root/kern64a.bin
+build/bios/x86_64/fat32.bin: build/bios/x86_64 build/bios/root/kern64c.elf build/bios/root/kern64c.bin build/bios/root/kern64a.bin build/bios/root/flat64c.bin
 	dd if=/dev/zero of=build/bios/x86_64/fat32.bin bs=1M count=31
 	mkfs.vfat -F32 build/bios/x86_64/fat32.bin # mformat -i build/bios/x86_64/fat32.bin -h 32 -t 32 -n 64 -c 1
 	mmd -i build/bios/x86_64/fat32.bin ::/boot
 	mcopy -i build/bios/x86_64/fat32.bin build/bios/root/kern64c.elf ::/boot/kern64c.elf
 	mcopy -i build/bios/x86_64/fat32.bin build/bios/root/kern64c.bin ::/boot/kern64c.bin
 	mcopy -i build/bios/x86_64/fat32.bin build/bios/root/kern64a.bin ::/boot/kern64a.bin
+	mcopy -i build/bios/x86_64/fat32.bin build/bios/root/flat64c.bin ::/boot/flat64c.bin
+
+src/x86_64/kernel/c/kernel64.o: src/x86_64/kernel/c/kernel64.c
+	$(CC) $(CFLAGS64) -o $@ -c $<
+
+build/bios/root/flat64c.bin: build/bios/root src/x86_64/kernel/c/kernel64.o
+	$(LD) $(LDFLAGS64ELF) -o build/bios/root/flat64cp.elf src/x86_64/kernel/c/kernel64.o
+	objcopy -O binary -j .text -j .rodata -j .data -j .bss build/bios/root/flat64cp.elf build/bios/root/flat64c.bin
 
 src/x86_64/boot/c/multiboot.o: src/x86_64/boot/c/multiboot.c
 	$(CC) $(CFLAGS64) -o $@ -c $<
 
 src/x86_64/boot/asm/inc/multiboot.o: src/x86_64/boot/asm/inc/multiboot.asm
 	$(NASM) $(NASMFLAGS64ELF) -o $@ $<
-
-build/bios/root/kern64c.o: src/x86_64/kernel/c/kernel64.c
-	$(CC) $(CFLAGS64) -o $@ -c $<
 
 build/bios/root/kern64c.elf: build/bios/root $(OBJFILES64)
 	$(LD) $(LDFLAGS64ELF) -o build/bios/root/kern64c.elf $(OBJFILES64)
@@ -243,9 +248,9 @@ qemu32c_direct: build/bios/root/kern32c.elf
 qemu64c: build/bios/x86_64/hd.bin
 	qemu-system-x86_64 -enable-kvm -cpu qemu64 -drive file=build/bios/x86_64/hd.bin,format=raw
 
-# qemu doesn't support 64 bit images
-# qemu64c_direct: build/bios/root/kern64c.elf build/bios/x86_64/hd.bin
-# 	qemu-system-x86_64 -enable-kvm -cpu qemu64 -drive file=build/bios/x86_64/hd.bin,format=raw
+# qemu doesn't support 64 bit images but this seems ok to actually do the boot from, maybe it's 32 but hiding
+qemu64c_direct: build/bios/root/kern64c.elf build/bios/x86_64/hd.bin
+	qemu-system-x86_64 -enable-kvm -cpu qemu64 -drive file=build/bios/x86_64/hd.bin,format=raw
 
 qemu64c_uefi: build/uefi/hd.bin
 	qemu-system-x86_64 -enable-kvm -cpu qemu64 -pflash OVMF_CODE.fd -pflash OVMF_VARS.fd -drive file=build/uefi/hd.bin,format=raw

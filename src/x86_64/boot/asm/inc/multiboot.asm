@@ -1,3 +1,5 @@
+[BITS 64]
+
 global loader                           ; making entry point visible to linker
 global magic                            ; we will use this in kmain
 global mbd                              ; we will use this in kmain
