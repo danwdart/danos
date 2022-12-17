@@ -1,8 +1,8 @@
-ENTRY (_start)
+ENTRY (loader)
 
 SECTIONS
 {
-    . = 0x0000e000;
+    . = 0x00100000;
 
     .text ALIGN (0x1000) :
     {
