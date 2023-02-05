@@ -1,3 +1,0 @@
-[submodule "external/bootboot"]
-	path = external/bootboot
-	url = git@gitlab.com:bztsrc/bootboot.git
