@@ -3,29 +3,29 @@ LD_X86 = ld
 AS_X86 = as
 NASM = nasm
 RM = rm
-CFLAGSx86/32 = -m32 -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Isrc/x86/32/kernel/c/lib -Isrc/x86/32/boot/c/lib
-CFLAGSx86/64 = -m64 -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Isrc/x86/64/kernel/c/lib -Isrc/x86/64/boot/c/lib
-CFLAGSx86/64EFI = -Wall -Werror -fno-stack-protector -fpic -fshort-wchar -mno-red-zone -DEFI_FUNCTION_WRAPPER
-CFLAGSx86/64EFINEW = -Wall -Werror -fno-stack-protector -fpic -ffreestanding -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args
+CFLAGSx86_32 = -m32 -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Isrc/x86/32/kernel/c/lib -Isrc/x86/32/boot/c/lib
+CFLAGSx86_64 = -m64 -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Isrc/x86/64/kernel/c/lib -Isrc/x86/64/boot/c/lib
+CFLAGSx86_64EFI = -Wall -Werror -fno-stack-protector -fpic -fshort-wchar -mno-red-zone -DEFI_FUNCTION_WRAPPER
+CFLAGSx86_64EFINEW = -Wall -Werror -fno-stack-protector -fpic -ffreestanding -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args
 EFIDIR = /nix/store/vm982y77hrc626va4mcpr73vsskqgvll-gnu-efi-3.0.15
 HEADERPATH = ${EFIDIR}/include/efi
 HEADERS = -I ${HEADERPATH} -I ${HEADERPATH}/x86/64
 LIBDIR = ${EFIDIR}/lib
-LDFLAGSx86/32BIN = -m elf_i386 -T src/x86/32/boot/loadable16.ld
-LDFLAGSx86/32ELF = -m elf_i386 -T src/x86/32/kernel/linker.ld
-LDFLAGSx86/64BIN = -m elf_x86/64
-LDFLAGSx86/64ELF = -m elf_x86/64 -T src/x86/64/kernel/linker.ld
-LDFLAGSx86/64EFI = -nostdlib -znocombreloc -T ${LIBDIR}/elf_x86/64_efi.lds -shared -Bsymbolic -L ${LIBDIR} -l:libgnuefi.a -l:libefi.a
-LDFLAGSx86/64EFINEW = -T ${LIBDIR}/elf_x86/64_efi.lds -shared -Bsymbolic -L ${LIBDIR} -l:libgnuefi.a -l:libefi.a
+LDFLAGSx86_32BIN = -m elf_i386 -T src/x86/32/boot/loadable16.ld
+LDFLAGSx86_32ELF = -m elf_i386 -T src/x86/32/kernel/linker.ld
+LDFLAGSx86_64BIN = -m elf_x86/64
+LDFLAGSx86_64ELF = -m elf_x86/64 -T src/x86/64/kernel/linker.ld
+LDFLAGSx86_64EFI = -nostdlib -znocombreloc -T ${LIBDIR}/elf_x86/64_efi.lds -shared -Bsymbolic -L ${LIBDIR} -l:libgnuefi.a -l:libefi.a
+LDFLAGSx86_64EFINEW = -T ${LIBDIR}/elf_x86/64_efi.lds -shared -Bsymbolic -L ${LIBDIR} -l:libgnuefi.a -l:libefi.a
 OBJCOPY = objcopy
-OBJCOPY_FLAGSx86/64EFINEW = -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc --target=efi-app-x86/64
-OBJCOPY_FLAGSx86/64EFINEW = -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target=efi-app-x86/64 --subsystem=10
-ASFLAGSx86/32 = --32
+OBJCOPY_FLAGSx86_64EFINEW = -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc --target=efi-app-x86/64
+OBJCOPY_FLAGSx86_64EFINEW = -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target=efi-app-x86/64 --subsystem=10
+ASFLAGSx86_32 = --32
 NASMFLAGS16 = -i src/x86/16/shared/asm/inc
-NASMFLAGSx86/32BIN = -i src/x86/32/shared/asm/inc -fbin
-NASMFLAGSx86/32ELF = -i src/x86/32/shared/asm/inc -felf
-NASMFLAGSx86/64BIN = -i src/x86/64/shared/asm/inc -fbin
-NASMFLAGSx86/64ELF = -i src/x86/64/shared/asm/inc -felf64
+NASMFLAGSx86_32BIN = -i src/x86/32/shared/asm/inc -fbin
+NASMFLAGSx86_32ELF = -i src/x86/32/shared/asm/inc -felf
+NASMFLAGSx86_64BIN = -i src/x86/64/shared/asm/inc -fbin
+NASMFLAGSx86_64ELF = -i src/x86/64/shared/asm/inc -felf64
 CKERNLIB32 = src/x86/32/kernel/c/lib
 OBJFILES32 = src/x86/32/boot/asm/inc/multiboot.o src/x86/32/boot/c/multiboot.o ${CKERNLIB32}/video.o ${CKERNLIB32}/io.o ${CKERNLIB32}/8042.o ${CKERNLIB32}/clever.o ${CKERNLIB32}/string.o src/x86/32/kernel/c/main.o
 OBJFILES64 = src/x86/64/boot/asm/inc/multiboot.o src/x86/64/boot/c/multiboot.o src/x86/64/kernel/c/kernel64.o
@@ -69,10 +69,10 @@ build/x86/uefi/root/EFI/BOOT: build/x86/uefi/root/EFI
     mkdir -pv build/x86/uefi/root/EFI/BOOT
 
 src/x86/64/boot/c/efimain.o: src/x86/64/boot/c/efimain.c
-    ${CC} src/x86/64/boot/c/efimain.c -c ${CFLAGSx86/64EFI} ${HEADERS} -o src/x86/64/boot/c/efimain.o
+    ${CC} src/x86/64/boot/c/efimain.c -c ${CFLAGSx86_64EFI} ${HEADERS} -o src/x86/64/boot/c/efimain.o
 
 src/x86/64/boot/c/efimain.so: src/x86/64/boot/c/efimain.o
-    $(LD_X86) src/x86/64/boot/c/efimain.o ${LIBDIR}/crt0-efi-x86/64.o ${LDFLAGSx86/64EFI} -o src/x86/64/boot/c/efimain.so
+    $(LD_X86) src/x86/64/boot/c/efimain.o ${LIBDIR}/crt0-efi-x86/64.o ${LDFLAGSx86_64EFI} -o src/x86/64/boot/c/efimain.so
 
 build/x86/uefi/root/EFI/BOOT/BOOTX64.EFI: build/x86/uefi/root/EFI/BOOT src/x86/64/boot/c/efimain.so
     objcopy -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc --target=efi-app-x86/64 src/x86/64/boot/c/efimain.so build/x86/uefi/root/EFI/BOOT/BOOTX64.EFI
@@ -110,27 +110,27 @@ build/x86/bios/x86/64/fat32.bin: build/x86/bios/x86/64 build/x86/bios/root/kern6
     mcopy -i build/x86/bios/x86/64/fat32.bin build/x86/bios/root/flat64c.bin ::/boot/flat64c.bin
 
 src/x86/64/kernel/c/kernel64.o: src/x86/64/kernel/c/kernel64.c
-    $(CC_X86) $(CFLAGSx86/64) -o $@ -c $<
+    $(CC_X86) $(CFLAGSx86_64) -o $@ -c $<
 
 build/x86/bios/root/flat64c.bin: build/x86/bios/root src/x86/64/kernel/c/kernel64.o
-    $(LD_X86) $(LDFLAGSx86/64ELF) -o build/x86/bios/root/flat64cp.elf src/x86/64/kernel/c/kernel64.o
+    $(LD_X86) $(LDFLAGSx86_64ELF) -o build/x86/bios/root/flat64cp.elf src/x86/64/kernel/c/kernel64.o
     objcopy -O binary -j .text -j .rodata -j .data -j .bss build/x86/bios/root/flat64cp.elf build/x86/bios/root/flat64c.bin
 
 src/x86/64/boot/c/multiboot.o: src/x86/64/boot/c/multiboot.c
-    $(CC_X86) $(CFLAGSx86/64) -o $@ -c $<
+    $(CC_X86) $(CFLAGSx86_64) -o $@ -c $<
 
 src/x86/64/boot/asm/inc/multiboot.o: src/x86/64/boot/asm/inc/multiboot.asm
-    $(NASM) $(NASMFLAGSx86/64ELF) -o $@ $<
+    $(NASM) $(NASMFLAGSx86_64ELF) -o $@ $<
 
 build/x86/bios/root/kern64c.elf: build/x86/bios/root $(OBJFILES64)
-    $(LD_X86) $(LDFLAGSx86/64ELF) -o build/x86/bios/root/kern64c.elf $(OBJFILES64)
+    $(LD_X86) $(LDFLAGSx86_64ELF) -o build/x86/bios/root/kern64c.elf $(OBJFILES64)
 
 build/x86/bios/root/kern64c.bin: build/x86/bios/root $(OBJFILES64)
-    $(LD_X86) $(LDFLAGSx86/64ELF) -o build/x86/bios/root/kern64cp.elf $(OBJFILES64)
+    $(LD_X86) $(LDFLAGSx86_64ELF) -o build/x86/bios/root/kern64cp.elf $(OBJFILES64)
     objcopy -O binary -j .text -j .rodata -j .data -j .bss build/x86/bios/root/kern64cp.elf build/x86/bios/root/kern64c.bin
 
 build/x86/bios/root/kern64a.bin: build/x86/bios/root src/x86/64/kernel/asm/kernel64.asm
-    $(NASM) $(NASMFLAGSx86/64BIN) src/x86/64/kernel/asm/kernel64.asm -o build/x86/bios/root/kern64a.bin
+    $(NASM) $(NASMFLAGSx86_64BIN) src/x86/64/kernel/asm/kernel64.asm -o build/x86/bios/root/kern64a.bin
 
 # END 64
 
@@ -159,33 +159,33 @@ build/x86/bios/x86/32/fat32.bin: build/x86/bios/x86/32 build/x86/bios/root/kern1
 
 src/x86/32/kernel/c/lib/%.o: src/x86/32/kernel/c/lib/%.c
     echo "Compiling $@ from $< in 32-bit mode"
-    $(CC_X86) $(CFLAGSx86/32) -o $@ -c $<
+    $(CC_X86) $(CFLAGSx86_32) -o $@ -c $<
 
 src/x86/32/boot/c/multiboot.o: src/x86/32/boot/c/multiboot.c
-    $(CC_X86) $(CFLAGSx86/32) -o $@ -c $<
+    $(CC_X86) $(CFLAGSx86_32) -o $@ -c $<
 
 src/x86/32/kernel/c/main.o: src/x86/32/kernel/c/main.c
-    $(CC_X86) $(CFLAGSx86/32) -o $@ -c $<
+    $(CC_X86) $(CFLAGSx86_32) -o $@ -c $<
 
 src/x86/32/boot/asm/inc/multiboot.o: src/x86/32/boot/asm/inc/multiboot.asm
-    $(NASM) $(NASMFLAGSx86/32ELF) -o $@ $<
+    $(NASM) $(NASMFLAGSx86_32ELF) -o $@ $<
 
 src/x86/32/kernel/c/kernel32.o: src/x86/32/kernel/c/kernel32.c
-    $(CC_X86) $(CFLAGSx86/32) -o $@ -c $<
+    $(CC_X86) $(CFLAGSx86_32) -o $@ -c $<
 
 build/x86/bios/root/flat32c.bin: build/x86/bios/root src/x86/32/kernel/c/kernel32.o
-    $(LD_X86) $(LDFLAGSx86/32ELF) -o build/x86/bios/root/flat32cp.elf src/x86/32/kernel/c/kernel32.o
+    $(LD_X86) $(LDFLAGSx86_32ELF) -o build/x86/bios/root/flat32cp.elf src/x86/32/kernel/c/kernel32.o
     objcopy -O binary -j .text -j .rodata -j .data -j .bss build/x86/bios/root/flat32cp.elf build/x86/bios/root/flat32c.bin
 
 build/x86/bios/root/kern32c.bin: build/x86/bios/root $(OBJFILES32)
-    $(LD_X86) $(LDFLAGSx86/32ELF) -o build/x86/bios/root/kern32cp.elf $(OBJFILES32)
+    $(LD_X86) $(LDFLAGSx86_32ELF) -o build/x86/bios/root/kern32cp.elf $(OBJFILES32)
     objcopy -O binary -j .text -j .rodata -j .data -j .bss build/x86/bios/root/kern32cp.elf build/x86/bios/root/kern32c.bin
 
 build/x86/bios/root/kern32c.elf: build/x86/bios/root $(OBJFILES32)
-    $(LD_X86) $(LDFLAGSx86/32ELF) -o build/x86/bios/root/kern32c.elf $(OBJFILES32)
+    $(LD_X86) $(LDFLAGSx86_32ELF) -o build/x86/bios/root/kern32c.elf $(OBJFILES32)
 
 build/x86/bios/root/kern32a.bin: build/x86/bios/root src/x86/32/kernel/asm/kernel32.asm
-    $(NASM) $(NASMFLAGSx86/32BIN) src/x86/32/kernel/asm/kernel32.asm -o build/x86/bios/root/kern32a.bin
+    $(NASM) $(NASMFLAGSx86_32BIN) src/x86/32/kernel/asm/kernel32.asm -o build/x86/bios/root/kern32a.bin
 
 # END 32
 
