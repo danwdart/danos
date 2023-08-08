@@ -1,20 +1,23 @@
 with import <nixpkgs> {};
 runCommand "danos" {
     shellHook = if builtins.currentSystem == "aarch64-darwin" then ''
+    '' else (if builtins.currentSystem == "aarch64-linux" then ''
     '' else ''
       [ -f OVMF_VARS.fd ] || cp ${OVMFFull.fd.outPath}/FV/OVMF_CODE.fd .
       [ -f OVMF_VARS.fd ] || cp ${OVMFFull.fd.outPath}/FV/OVMF_VARS.fd .
       chown $USER *.fd
       chmod +w *.fd
-    '';
+    '');
     buildInputs = [
         nasm
         gcc
         qemu
     ] ++ (if builtins.currentSystem == "aarch64-darwin" then [
+        pkgsCross.i686-embedded.pkgsBuildHost.gcc
         pkgsCross.x86_64-embedded.pkgsBuildHost.gcc
         pkgsCross.aarch64-embedded.pkgsBuildHost.gcc
     ] else (if builtins.currentSystem == "aarch64-linux" then [
+        pkgsCross.i686-embedded.pkgsBuildHost.gcc
         pkgsCross.x86_64-embedded.pkgsBuildHost.gcc
         pkgsCross.aarch64-embedded.pkgsBuildHost.gcc
     ] else [
