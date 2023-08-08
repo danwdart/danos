@@ -3,4 +3,5 @@ build
 .direnv
 *.fd
 *.o
+*.so
 *.elf
