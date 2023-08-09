@@ -45,7 +45,7 @@ OBJFILES_aarch32_legacy =
 OBJFILES_AARCH32 =
 OBJFILES_AARCH64 = src/arch/arm/aarch64/boot/asm/bootstrap.o src/arch/arm/aarch64/kernel/c/kernel64.o
 
-.PHONY: all
+.PHONY: all clean x86_64_all x86_32_all x86_16_all x86_all aarch64_all aarch32_all aarch32_legacy_all arm_all qemu_x86_16a qemu_x86_32c qemu_x86_32c_direct qemu_x86_64c qemu_aarch64c_direct qemu_x86_64c_uefi
 
 all: x86_64_all x86_32_all x86_16_all
 
