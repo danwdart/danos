@@ -11,7 +11,7 @@ CFLAGS_X86_32 = -m32 -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefau
 CFLAGS_X86_64 = -m64 -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Isrc/arch/x86/64/kernel/c/lib -Isrc/arch/x86/64/boot/c/lib
 CFLAGS_X86_64EFI = -Wall -Werror -fno-stack-protector -fpic -fshort-wchar -mno-red-zone -DEFI_FUNCTION_WRAPPER
 CFLAGS_X86_64EFINEW = -Wall -Werror -fno-stack-protector -fpic -ffreestanding -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args
-CFLAGS_aarch32_legacy =
+CFLAGS_AARCH32_LEGACY =
 CFLAGS_AARCH32 =
 CFLAGS_AARCH64 = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles
 # EFIDIR = /nix/store/vm982y77hrc626va4mcpr73vsskqgvll-gnu-efi-3.0.15
@@ -24,13 +24,13 @@ LDFLAGS_X86_64_BIN = -m elf_x86_64
 LDFLAGS_X86_64_ELF = -m elf_x86_64 -T src/arch/x86/64/kernel/linker.ld
 LDFLAGS_X86_64EFI = -nostdlib -znocombreloc -T ${LIBDIR}/elf_x86_64_efi.lds -shared -Bsymbolic -L ${LIBDIR} -l:libgnuefi.a -l:libefi.a
 LDFLAGS_X86_64EFINEW = -T ${LIBDIR}/elf_x86_64_efi.lds -shared -Bsymbolic -L ${LIBDIR} -l:libgnuefi.a -l:libefi.a
-LDFLAGS_aarch32_legacy =
+LDFLAGS_AARCH32_LEGACY =
 LDFLAGS_AARCH32 =
 LDFLAGS_AARCH64 = -T src/arch/arm/64/kernel/linker.ld -nostdlib
 OBJCOPY_FLAGS_X86_64_EFINEW = -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc --target=efi-app-x86_64
 OBJCOPY_FLAGS_X86_64_EFINEW = -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target=efi-app-x86_64 --subsystem=10
 ASFLAGS_X86_32 = --32
-ASFLAGS_aarch32_legacy =
+ASFLAGS_AARCH32_LEGACY =
 ASFLAGS_AARCH32 =
 ASFLAGS_AARCH64 =
 NASMFLAGS_X86_16 = -i src/arch/x86/16/shared/asm/inc
@@ -41,7 +41,7 @@ NASMFLAGS_X86_64_ELF = -i src/arch/x86/64/shared/asm/inc -felf64
 CKERNLIB_X86_32 = src/arch/x86/32/kernel/c/lib
 OBJFILES_X86_32 = src/arch/x86/32/boot/asm/inc/multiboot.o src/arch/x86/32/boot/c/multiboot.o ${CKERNLIB_X86_32}/video.o ${CKERNLIB_X86_32}/io.o ${CKERNLIB_X86_32}/8042.o ${CKERNLIB_X86_32}/clever.o ${CKERNLIB_X86_32}/string.o src/arch/x86/32/kernel/c/main.o
 OBJFILES_X86_64 = src/arch/x86/64/boot/asm/inc/multiboot.o src/arch/x86/64/boot/c/multiboot.o src/arch/x86/64/kernel/c/kernel64.o
-OBJFILES_aarch32_legacy =
+OBJFILES_AARCH32_LEGACY =
 OBJFILES_AARCH32 =
 OBJFILES_AARCH64 = src/arch/arm/aarch64/boot/asm/bootstrap.o src/arch/arm/aarch64/kernel/c/kernel64.o
 
