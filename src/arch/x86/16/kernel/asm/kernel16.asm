@@ -262,7 +262,7 @@ std_constants:
     cmd_echo db "echo", 0
     cmd_run db "run", 0
     cmd_ver db "ver", 0
-    result_help db "Availble commands: help, ver, run, echo", 0x0a, 0x0d, 0
+    result_help db "Available commands: help, ver, run, echo", 0x0a, 0x0d, 0
     result_run db "I would run something but I have nothing to run.", 0x0a, 0x0d, 0
     result_ver db "DanOS version 0.2, at your service!", 0x0a, 0x0d, 0
     result_unknown_command db "Sorry, I don't know what that means.", 0x0a, 0x0d, 0
