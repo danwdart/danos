@@ -1,7 +1,6 @@
 with import <nixpkgs> {};
 runCommand "danos" {
     shellHook = if builtins.currentSystem == "aarch64-darwin" then ''
-    export EFIDIR=${pkgsCross.gnu64.pkgsHostTarget.gnu-efi.outPath}
     export CC_X86_64=x86_64-unknown-linux-gnu-gcc
     export LD_X86_64=x86_64-unknown-linux-gnu-ld
     export AS_X86_64=x86_64-unknown-linux-gnu-as
@@ -89,7 +88,6 @@ runCommand "danos" {
         nasm
         gcc
         qemu
-        gnu-efi
     ] ++ (if builtins.currentSystem == "aarch64-darwin" then [
         pkgsCross.i686-embedded.pkgsBuildHost.gcc
         pkgsCross.x86_64-embedded.pkgsBuildHost.gcc
@@ -97,7 +95,6 @@ runCommand "danos" {
         pkgsCross.aarch64-embedded.pkgsBuildHost.gcc
         pkgsCross.arm-embedded.pkgsBuildHost.gcc
         pkgsCross.armhf-embedded.pkgsBuildHost.gcc
-        pkgsCross.gnu64.pkgsHostTarget.gnu-efi
     ] else (if builtins.currentSystem == "aarch64-linux" then [
         pkgsCross.i686-embedded.pkgsBuildHost.gcc
         pkgsCross.x86_64-embedded.pkgsBuildHost.gcc
@@ -107,6 +104,7 @@ runCommand "danos" {
         pkgsCross.armhf-embedded.pkgsBuildHost.gcc
         pkgsCross.gnu64.pkgsHostTarget.gnu-efi
     ] else [
+        gnu-efi
         pkgsi686Linux.glibc.dev
         OVMFFull.fd
         syslinux
