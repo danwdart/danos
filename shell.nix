@@ -27,6 +27,12 @@ runCommand "danos" {
     export OBJCOPY_AARCH64=aarch64-none-elf-objcopy
     export STRIP_AARCH64=aarch64-none-elf-strip
     '' else (if builtins.currentSystem == "aarch64-linux" then ''
+    [ -f OVMF_VARS.fd ] || cp ${OVMF.fd.outPath}/FV/AAVMF_CODE.fd .
+    [ -f OVMF_VARS.fd ] || cp ${OVMF.fd.outPath}/FV/AAVMF_VARS.fd .
+    [ -f OVMF_VARS.fd ] || cp ${OVMF.fd.outPath}/FV/QEMU_VARS.fd .
+    [ -f OVMF_VARS.fd ] || cp ${OVMF.fd.outPath}/FV/QEMU_EFI.fd .
+    chown $USER *.fd
+    chmod +w *.fd
     export EFIDIR=${pkgsCross.gnu64.pkgsHostTarget.gnu-efi.outPath}
     export CC_X86_64=x86_64-unknown-linux-gnu-gcc
     export LD_X86_64=x86_64-unknown-linux-gnu-ld
@@ -104,6 +110,7 @@ runCommand "danos" {
         # pkgsCross.armhf-embedded.pkgsBuildHost.gcc # not cached
         pkgsCross.armv7l-hf-multiplatform.pkgsBuildHost.gcc
         pkgsCross.gnu64.pkgsHostTarget.gnu-efi
+        OVMF.fd
     ] else [
         gnu-efi
         pkgsi686Linux.glibc.dev
