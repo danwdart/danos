@@ -277,8 +277,6 @@ build/arm/uefi: build/arm
 build/arm/uefi/root: build/arm/uefi
 	mkdir -pv build/arm/uefi/root
 
-build/arm/uboot/root/kern64c.elf: build/arm/uboot/root
-
 build/arm/uefi/hd.bin: build/arm/uefi/fat32.bin
 	dd if=/dev/zero of=build/arm/uefi/hd.bin bs=1M count=34
 	sgdisk -o -n1 -t1:ef00 build/arm/uefi/hd.bin
@@ -309,12 +307,12 @@ build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI: build/arm/uefi/root/EFI/BOOT src/arch
 	$(STRIP_AARCH64) build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI
 
 build/arm/uboot/aarch64/hd.bin: build/arm/uboot/aarch64/fat32.bin
-	dd if=/dev/zero of=build/arm/uboot/aarch64/hd.bin bs=1M count=32
+	dd if=/dev/zero of=build/arm/uboot/aarch64/hd.bin bs=1M count=34
 	sfdisk build/arm/uboot/aarch64/hd.bin < src/arch/arm/aarch64/boot/sfdisk.conf
 	dd if=build/arm/uboot/aarch64/fat32.bin of=build/arm/uboot/aarch64/hd.bin bs=512 seek=2048 conv=notrunc
 
 build/arm/uboot/aarch64/fat32.bin: build/arm/uboot/aarch64 build/arm/uboot/root/kern64c.elf
-	dd if=/dev/zero of=build/arm/uboot/aarch64/fat32.bin bs=1M count=32
+	dd if=/dev/zero of=build/arm/uboot/aarch64/fat32.bin bs=1M count=33
 	mkfs.vfat -F16 build/arm/uboot/aarch64/fat32.bin
 # convert this
 	mkdir -pv mounts/arm/uboot/aarch64/
@@ -341,11 +339,13 @@ src/arch/arm/aarch64/kernel/c/kernel64.o: src/arch/arm/aarch64/kernel/c/kernel64
 src/arch/arm/aarch64/boot/asm/bootstrap.o: src/arch/arm/aarch64/boot/asm/bootstrap.s
 	$(AS_AARCH64) $(ASFLAGS_AARCH64) -o $@ -c $<
 
-build/arm/uboot/root/kern64c.so: build/arm/uboot/root $(OBJFILES_AARCH64)
-	$(LD_AARCH64) $(LDFLAGS_AARCH64_ELF) -T src/arch/arm/aarch64/kernel/linker.ld -o build/arm/uboot/root/kern64c.so $(OBJFILES_AARCH64)
+build/arm/uboot/root/kern64c.elf: build/arm/uboot/root $(OBJFILES_AARCH64)
+	$(LD_AARCH64) $(LDFLAGS_AARCH64_ELF) -T src/arch/arm/aarch64/kernel/linker.ld -o build/arm/uboot/root/kern64c.elf $(OBJFILES_AARCH64)
 
-build/arm/uboot/root/kern64c.elf: build/arm/uboot/root/kern64c.so
-	$(OBJCOPY_AARCH64) -O binary build/arm/uboot/root/kern64c.so build/arm/uboot/root/kern64c.elf
+build/arm/uboot/root/kern64c.bin: build/arm/uboot/root $(OBJFILES_AARCH64)
+	$(LD_AARCH64) $(LDFLAGS_AARCH64_ELF) -T src/arch/arm/aarch64/kernel/linker.ld -o build/arm/uboot/root/kern64cp.so $(OBJFILES_AARCH64)
+	$(OBJCOPY_AARCH64) -O binary -j .text -j .rodata -j .data -j .bss build/arm/uboot/root/kern64cp.elf build/arm/uboot/root/kern64c.bin
+
 
 aarch64_all: build/arm/uefi/hd.bin build/arm/uboot/aarch64/hd.bin build/arm/uboot/root/kern64c.elf
 
@@ -374,8 +374,11 @@ qemu_x86_64c: build/x86/bios/x86_64/hd.bin
 qemu_aarch64c_direct: build/arm/uboot/root/kern64c.elf
 	qemu-system-aarch64 -M virt -device ramfb -cpu max -kernel build/arm/uboot/root/kern64c.elf $(EXTRA_QEMU_OPTS)
 
+# usb start
+# load usb 0:1 0x40400000 kern64c.elf
+# bootelf
 qemu_aarch64c_uboot: build/arm/uboot/aarch64/hd.bin
-	qemu-system-aarch64 -M virt -device ramfb -cpu max -smp cores=8 -device qemu-xhci -usb -device usb-kbd -device usb-tablet -bios u-boot.bin -drive file=build/arm/uboot/aarch64/hd.bin,format=raw,if=none,id=hd -device usb-storage,drive=hd,serial=hd -serial stdio $(EXTRA_QEMU_OPTS)
+	qemu-system-aarch64 -M virt -device ramfb -cpu max -smp cores=8 -device usb-ehci -device usb-kbd -device usb-tablet -bios u-boot.bin -drive file=build/arm/uboot/aarch64/hd.bin,format=raw,if=none,id=hd -device usb-storage,drive=hd,serial=hd -serial stdio $(EXTRA_QEMU_OPTS)
 
 # can't detect usb?
 qemu_aarch64c_uefi: build/arm/uefi/hd.bin
