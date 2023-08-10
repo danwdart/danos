@@ -27,13 +27,19 @@ runCommand "danos" {
     export OBJCOPY_AARCH64=aarch64-none-elf-objcopy
     export STRIP_AARCH64=aarch64-none-elf-strip
     '' else (if builtins.currentSystem == "aarch64-linux" then ''
-    [ -f OVMF_VARS.fd ] || cp ${OVMF.fd.outPath}/FV/AAVMF_CODE.fd .
-    [ -f OVMF_VARS.fd ] || cp ${OVMF.fd.outPath}/FV/AAVMF_VARS.fd .
-    [ -f OVMF_VARS.fd ] || cp ${OVMF.fd.outPath}/FV/QEMU_VARS.fd .
-    [ -f OVMF_VARS.fd ] || cp ${OVMF.fd.outPath}/FV/QEMU_EFI.fd .
-    chown $USER *.fd
-    chmod +w *.fd
-    export EFIDIR=${pkgsCross.gnu64.pkgsHostTarget.gnu-efi.outPath}
+    [ -f AAVMF_CODE.fd ] || cp ${OVMF.fd.outPath}/FV/AAVMF_CODE.fd .
+    [ -f AAVMF_VARS.fd ] || cp ${OVMF.fd.outPath}/FV/AAVMF_VARS.fd .
+    [ -f QEMU_VARS.fd ] || cp ${OVMF.fd.outPath}/FV/QEMU_VARS.fd .
+    [ -f QEMU_EFI.fd ] || cp ${OVMF.fd.outPath}/FV/QEMU_EFI.fd .
+    [ -f edk2-x86_64-code.fd ] || cp ${qemu.outPath}/share/qemu/edk2-x86_64-code.fd .
+    [ -f edk2-x86_64-vars.fd ] || cp ${qemu.outPath}/share/qemu/edk2-x86_64-vars.fd .
+    [ -f edk2-aarch64-code.fd ] || cp ${qemu.outPath}/share/qemu/edk2-aarch64-code.fd .
+    [ -f edk2-arm-vars.fd ] || cp ${qemu.outPath}/share/qemu/edk2-arm-vars.fd .
+    [ -f u-boot.bin ] || cp ${ubootQemuAarch64.outPath}/u-boot.bin .
+    chown $USER *.fd *.bin
+    chmod +w *.fd *.bin
+    export EFIDIR_AARCH64=${gnu-efi.outPath}
+    export EFIDIR_X86_64=${pkgsCross.gnu64.pkgsHostTarget.gnu-efi.outPath}
     export CC_X86_64=x86_64-unknown-linux-gnu-gcc
     export LD_X86_64=x86_64-unknown-linux-gnu-ld
     export AS_X86_64=x86_64-unknown-linux-gnu-as
@@ -60,10 +66,17 @@ runCommand "danos" {
     export OBJCOPY_AARCH64=objcopy
     export STRIP_AARCH64=strip
     '' else ''
-    [ -f OVMF_VARS.fd ] || cp ${OVMFFull.fd.outPath}/FV/OVMF_CODE.fd .
-    [ -f OVMF_VARS.fd ] || cp ${OVMFFull.fd.outPath}/FV/OVMF_VARS.fd .
+    [ -f AAVMF_CODE.fd ] || cp ${OVMF.fd.outPath}/FV/AAVMF_CODE.fd .
+    [ -f AAVMF_VARS.fd ] || cp ${OVMF.fd.outPath}/FV/AAVMF_VARS.fd .
+    [ -f QEMU_VARS.fd ] || cp ${OVMF.fd.outPath}/FV/QEMU_VARS.fd .
+    [ -f QEMU_EFI.fd ] || cp ${OVMF.fd.outPath}/FV/QEMU_EFI.fd .
+    [ -f edk2-x86_64-code.fd ] || cp ${qemu.outPath}/share/qemu/edk2-x86_64-code.fd .
+    [ -f edk2-i386-vars.fd ] || cp ${qemu.outPath}/share/qemu/edk2-i386-vars.fd .
+    [ -f edk2-aarch64-code.fd ] || cp ${qemu.outPath}/share/qemu/edk2-aarch64-code.fd .
+    [ -f edk2-arm-vars.fd ] || cp ${qemu.outPath}/share/qemu/edk2-arm-vars.fd .
     chown $USER *.fd
     chmod +w *.fd
+    export EFIDIR_X86_64=${gnu-efi.outPath}
     export CC_X86_64=gcc
     export LD_X86_64=ld
     export AS_X86_64=as
@@ -110,7 +123,9 @@ runCommand "danos" {
         # pkgsCross.armhf-embedded.pkgsBuildHost.gcc # not cached
         pkgsCross.armv7l-hf-multiplatform.pkgsBuildHost.gcc
         pkgsCross.gnu64.pkgsHostTarget.gnu-efi
+        gnu-efi
         OVMF.fd
+        ubootQemuAarch64
     ] else [
         gnu-efi
         pkgsi686Linux.glibc.dev

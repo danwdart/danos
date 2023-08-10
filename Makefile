@@ -9,26 +9,35 @@ RM = rm
 # OBJCOPY = objcopy
 CFLAGS_X86_32 = -m32 -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Isrc/arch/x86/32/kernel/c/lib -Isrc/arch/x86/32/boot/c/lib
 CFLAGS_X86_64 = -m64 -Wall -Wextra -nostdlib -fno-builtin -nostartfiles -nodefaultlibs -Isrc/arch/x86/64/kernel/c/lib -Isrc/arch/x86/64/boot/c/lib
-CFLAGS_X86_64EFI = -Wall -Werror -fno-stack-protector -fpic -fshort-wchar -mno-red-zone -DEFI_FUNCTION_WRAPPER
-CFLAGS_X86_64EFINEW = -Wall -Werror -fno-stack-protector -fpic -ffreestanding -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args
+CFLAGS_X86_64_EFI = -Wall -Werror -fno-stack-protector -fpic -fshort-wchar -mno-red-zone -DEFI_FUNCTION_WRAPPER
+CFLAGS_X86_64_EFINEW = -Wall -Werror -fno-stack-protector -fpic -ffreestanding -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args
 CFLAGS_AARCH32_LEGACY =
 CFLAGS_AARCH32 =
 CFLAGS_AARCH64 = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles
+CFLAGS_AARCH64_EFI = -Wall -Werror -fno-stack-protector -fpic -fshort-wchar -DEFI_FUNCTION_WRAPPER
+CFLAGS_AARCH64_EFINEW = -Wall -Werror -fno-stack-protector -fpic -ffreestanding -fno-stack-check -fshort-wchar -maccumulate-outgoing-args
 # EFIDIR = /nix/store/vm982y77hrc626va4mcpr73vsskqgvll-gnu-efi-3.0.15
-HEADERPATH = ${EFIDIR}/include/efi
-HEADERS = -I ${HEADERPATH} -I ${HEADERPATH}/x86/64
-LIBDIR = ${EFIDIR}/lib
+HEADERPATH_X86_64 = ${EFIDIR_X86_64}/include/efi
+HEADERS_X86_64 = -I ${HEADERPATH_X86_64} -I ${HEADERPATH_X86_64}/x86/64
+LIBDIR_X86_64 = ${EFIDIR_X86_64}/lib
+HEADERPATH_AARCH64 = ${EFIDIR_AARCH64}/include/efi
+HEADERS_AARCH64 = -I ${HEADERPATH_AARCH64} -I ${HEADERPATH_AARCH64}/aarch64
+LIBDIR_AARCH64 = ${EFIDIR_AARCH64}/lib
 LDFLAGS_X86_32_BIN = -m elf_i386 -T src/arch/x86/32/boot/loadable16.ld
 LDFLAGS_X86_32_ELF = -m elf_i386 -T src/arch/x86/32/kernel/linker.ld
 LDFLAGS_X86_64_BIN = -m elf_x86_64
 LDFLAGS_X86_64_ELF = -m elf_x86_64 -T src/arch/x86/64/kernel/linker.ld
-LDFLAGS_X86_64EFI = -nostdlib -znocombreloc -T ${LIBDIR}/elf_x86_64_efi.lds -shared -Bsymbolic -L ${LIBDIR} -l:libgnuefi.a -l:libefi.a
-LDFLAGS_X86_64EFINEW = -T ${LIBDIR}/elf_x86_64_efi.lds -shared -Bsymbolic -L ${LIBDIR} -l:libgnuefi.a -l:libefi.a
+LDFLAGS_X86_64_EFI = -nostdlib -znocombreloc -T ${LIBDIR_X86_64}/elf_x86_64_efi.lds -shared -Bsymbolic -L ${LIBDIR_X86_64} -l:libgnuefi.a -l:libefi.a
+LDFLAGS_X86_64_EFINEW = -T ${LIBDIR_X86_64}/elf_x86_64_efi.lds -shared -Bsymbolic -L ${LIBDIR_X86_64} -l:libgnuefi.a -l:libefi.a
 LDFLAGS_AARCH32_LEGACY =
 LDFLAGS_AARCH32 =
 LDFLAGS_AARCH64 = -T src/arch/arm/64/kernel/linker.ld -nostdlib
-OBJCOPY_FLAGS_X86_64_EFINEW = -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc --target=efi-app-x86_64
+LDFLAGS_AARCH64_EFI = -nostdlib -znocombreloc -T ${LIBDIR_AARCH64}/elf_aarch64_efi.lds -shared -Bsymbolic -L ${LIBDIR_AARCH64} -l:libgnuefi.a -l:libefi.a
+LDFLAGS_AARCH64_EFINEW = -T ${LIBDIR_AARCH64}/elf_aarch64_efi.lds -shared -Bsymbolic -L ${LIBDIR_AARCH64} -l:libgnuefi.a -l:libefi.a
+OBJCOPY_FLAGS_X86_64_EFI = -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc --target=efi-app-x86_64
 OBJCOPY_FLAGS_X86_64_EFINEW = -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target=efi-app-x86_64 --subsystem=10
+OBJCOPY_FLAGS_AARCH64_EFI = -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc --target=efi-app-aarch64
+OBJCOPY_FLAGS_AARCH64_EFINEW = -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .rel.* -j .rela.* -j .reloc --target=efi-app-aarch64 --subsystem=10
 ASFLAGS_X86_32 = --32
 ASFLAGS_AARCH32_LEGACY =
 ASFLAGS_AARCH32 =
@@ -88,10 +97,10 @@ build/x86/uefi/root/EFI/BOOT: build/x86/uefi/root/EFI
 	mkdir -pv build/x86/uefi/root/EFI/BOOT
 
 src/arch/x86/64/boot/c/efimain.o: src/arch/x86/64/boot/c/efimain.c
-	${CC_X86_64} src/arch/x86/64/boot/c/efimain.c -c ${CFLAGS_X86_64EFI} ${HEADERS} -o src/arch/x86/64/boot/c/efimain.o
+	${CC_X86_64} src/arch/x86/64/boot/c/efimain.c -c ${CFLAGS_X86_64_EFI} ${HEADERS_X86_64} -o src/arch/x86/64/boot/c/efimain.o
 
 src/arch/x86/64/boot/c/efimain.so: src/arch/x86/64/boot/c/efimain.o
-	$(LD_X86_64) src/arch/x86/64/boot/c/efimain.o ${LIBDIR}/crt0-efi-x86_64.o ${LDFLAGS_X86_64EFI} -o src/arch/x86/64/boot/c/efimain.so
+	$(LD_X86_64) src/arch/x86/64/boot/c/efimain.o ${LIBDIR_X86_64}/crt0-efi-x86_64.o ${LDFLAGS_X86_64_EFI} -o src/arch/x86/64/boot/c/efimain.so
 
 build/x86/uefi/root/EFI/BOOT/BOOTX64.EFI: build/x86/uefi/root/EFI/BOOT src/arch/x86/64/boot/c/efimain.so
 	$(OBJCOPY_X86_64) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc --target=efi-app-x86_64 src/arch/x86/64/boot/c/efimain.so build/x86/uefi/root/EFI/BOOT/BOOTX64.EFI
@@ -259,11 +268,64 @@ build/arm/uboot: build/arm
 build/arm/uboot/root: build/arm/uboot
 	mkdir -pv build/arm/uboot/root
 
+build/arm/uboot/aarch64: build/arm/uboot
+	mkdir -pv build/arm/uboot/aarch64
+
+build/arm/uefi: build/arm
+	mkdir -pv build/arm/uefi
+
+build/arm/uefi/root: build/arm/uefi
+	mkdir -pv build/arm/uefi/root
+
 build/arm/uboot/root/kern64c.elf: build/arm/uboot/root
 
-build/arm/uefi/hd.bin: build/arm/uboot/root/kern64c.elf
+build/arm/uefi/hd.bin: build/arm/uefi/fat32.bin
+	dd if=/dev/zero of=build/arm/uefi/hd.bin bs=1M count=34
+	sgdisk -o -n1 -t1:ef00 build/arm/uefi/hd.bin
+	dd if=build/arm/uefi/fat32.bin of=build/arm/uefi/hd.bin seek=2048 conv=notrunc
 
-build/arm/uboot/aarch64/hd.bin: build/arm/uboot/root/kern64c.elf
+build/arm/uefi/fat32.bin: build/arm/uefi build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI
+	dd if=/dev/zero of=build/arm/uefi/fat32.bin bs=1M count=33
+	mkfs.vfat -F32 build/arm/uefi/fat32.bin # mformat -i build/arm/uefi/fat32.bin -h 32 -t 32 -n 64 -c 1
+	mmd -i build/arm/uefi/fat32.bin ::/EFI
+	mmd -i build/arm/uefi/fat32.bin ::/EFI/BOOT
+	mcopy -i build/arm/uefi/fat32.bin build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI ::/EFI/BOOT/BOOTAA64.EFI
+	mcopy -i build/arm/uefi/fat32.bin build/arm/uboot/root/* ::/
+
+build/arm/uefi/root/EFI: build/arm/uefi/root
+	mkdir -pv build/arm/uefi/root/EFI
+
+build/arm/uefi/root/EFI/BOOT: build/arm/uefi/root/EFI
+	mkdir -pv build/arm/uefi/root/EFI/BOOT
+
+src/arch/arm/64/boot/c/efimain.o: src/arch/x86/64/boot/c/efimain.c
+	${CC_AARCH64} src/arch/arm/aarch64/boot/c/efimain.c -c ${CFLAGS_AARCH64_EFI} ${HEADERS_AARCH64} -o src/arch/arm/aarch64/boot/c/efimain.o
+
+src/arch/arm/64/boot/c/efimain.so: src/arch/arm/64/boot/c/efimain.o
+	$(LD_AARCH64) src/arch/arm/aarch64/boot/c/efimain.o ${LIBDIR_AARCH64}/crt0-efi-aarch64.o ${LDFLAGS_AARCH64_EFI} -o src/arch/arm/aarch64/boot/c/efimain.so
+
+build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI: build/arm/uefi/root/EFI/BOOT src/arch/arm/64/boot/c/efimain.so
+	$(OBJCOPY_AARCH64) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc --target=efi-app-aarch64 src/arch/arm/aarch64/boot/c/efimain.so build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI
+	$(STRIP_AARCH64) build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI
+
+build/arm/uboot/aarch64/hd.bin: build/arm/uboot/aarch64/fat32.bin
+	dd if=/dev/zero of=build/arm/uboot/aarch64/hd.bin bs=1M count=32
+	sfdisk build/arm/uboot/aarch64/hd.bin < src/arch/arm/aarch64/boot/sfdisk.conf
+	dd if=build/arm/uboot/aarch64/fat32.bin of=build/arm/uboot/aarch64/hd.bin bs=512 seek=2048 conv=notrunc
+
+build/arm/uboot/aarch64/fat32.bin: build/arm/uboot/aarch64 build/arm/uboot/root/kern64c.elf
+	dd if=/dev/zero of=build/arm/uboot/aarch64/fat32.bin bs=1M count=32
+	mkfs.vfat -F16 build/arm/uboot/aarch64/fat32.bin
+# convert this
+	mkdir -pv mounts/arm/uboot/aarch64/
+	sudo umount mounts/arm/uboot/aarch64/ || echo "ok"
+	sudo mount -oloop build/arm/uboot/aarch64/fat32.bin mounts/arm/uboot/aarch64/
+# build/arm/uboot/root/*.bin 
+	sudo cp -r build/arm/uboot/root/*.elf mounts/arm/uboot/aarch64/
+	sync
+	sudo umount mounts/arm/uboot/aarch64/
+	rm -rf mounts
+
 
 build/arm/uboot/root/kern32c.elf: build/arm/uboot/root
 
@@ -309,9 +371,15 @@ qemu_x86_32c_direct: build/x86/bios/root/kern32c.elf
 qemu_x86_64c: build/x86/bios/x86_64/hd.bin
 	qemu-system-x86_64 -cpu qemu64 -drive file=build/x86/bios/x86_64/hd.bin,format=raw $(EXTRA_QEMU_OPTS)
 
-
 qemu_aarch64c_direct: build/arm/uboot/root/kern64c.elf
 	qemu-system-aarch64 -M virt -device ramfb -cpu max -kernel build/arm/uboot/root/kern64c.elf $(EXTRA_QEMU_OPTS)
+
+qemu_aarch64c_uboot: build/arm/uboot/aarch64/hd.bin
+	qemu-system-aarch64 -M virt -device ramfb -cpu max -smp cores=8 -device qemu-xhci -usb -device usb-kbd -device usb-tablet -bios u-boot.bin -drive file=build/arm/uboot/aarch64/hd.bin,format=raw,if=none,id=hd -device usb-storage,drive=hd,serial=hd -serial stdio $(EXTRA_QEMU_OPTS)
+
+# can't detect usb?
+qemu_aarch64c_uefi: build/arm/uefi/hd.bin
+	qemu-system-aarch64 -M virt -device ramfb -cpu max -smp cores=8 -device qemu-xhci -usb -device usb-kbd -device usb-tablet -pflash edk2-aarch64-code.fd -pflash edk2-arm-vars.fd -drive file=build/arm/uefi/hd.bin,format=raw,if=none,id=hd -device usb-storage,drive=hd,serial=hd -serial stdio $(EXTRA_QEMU_OPTS)
 
 # qemu doesn't support 64 bit images but this seems ok to actually do the boot from, maybe it's 32 but hiding
 # qemu_x86_64c_direct: build/x86/bios/root/kern64c.elf build/x86/bios/x86_64/hd.bin
