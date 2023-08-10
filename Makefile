@@ -103,7 +103,7 @@ src/arch/x86/64/boot/c/efimain.so: src/arch/x86/64/boot/c/efimain.o
 	$(LD_X86_64) src/arch/x86/64/boot/c/efimain.o ${LIBDIR_X86_64}/crt0-efi-x86_64.o ${LDFLAGS_X86_64_EFI} -o src/arch/x86/64/boot/c/efimain.so
 
 build/x86/uefi/root/EFI/BOOT/BOOTX64.EFI: build/x86/uefi/root/EFI/BOOT src/arch/x86/64/boot/c/efimain.so
-	$(OBJCOPY_X86_64) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc --target=efi-app-x86_64 src/arch/x86/64/boot/c/efimain.so build/x86/uefi/root/EFI/BOOT/BOOTX64.EFI
+	$(OBJCOPY_X86_64) $(OBJCOPY_FLAGS_X86_64_EFI) src/arch/x86/64/boot/c/efimain.so build/x86/uefi/root/EFI/BOOT/BOOTX64.EFI
 	$(STRIP_X86_64) build/x86/uefi/root/EFI/BOOT/BOOTX64.EFI
 
 # END UEFI DIRS
@@ -284,7 +284,7 @@ build/arm/uefi/hd.bin: build/arm/uefi/fat32.bin
 	sgdisk -o -n1 -t1:ef00 build/arm/uefi/hd.bin
 	dd if=build/arm/uefi/fat32.bin of=build/arm/uefi/hd.bin seek=2048 conv=notrunc
 
-build/arm/uefi/fat32.bin: build/arm/uefi build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI
+build/arm/uefi/fat32.bin: build/arm/uefi build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI build/arm/uboot/root/kern64c.elf
 	dd if=/dev/zero of=build/arm/uefi/fat32.bin bs=1M count=33
 	mkfs.vfat -F32 build/arm/uefi/fat32.bin # mformat -i build/arm/uefi/fat32.bin -h 32 -t 32 -n 64 -c 1
 	mmd -i build/arm/uefi/fat32.bin ::/EFI
@@ -305,7 +305,7 @@ src/arch/arm/64/boot/c/efimain.so: src/arch/arm/64/boot/c/efimain.o
 	$(LD_AARCH64) src/arch/arm/aarch64/boot/c/efimain.o ${LIBDIR_AARCH64}/crt0-efi-aarch64.o ${LDFLAGS_AARCH64_EFI} -o src/arch/arm/aarch64/boot/c/efimain.so
 
 build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI: build/arm/uefi/root/EFI/BOOT src/arch/arm/64/boot/c/efimain.so
-	$(OBJCOPY_AARCH64) -j .text -j .sdata -j .data -j .dynamic -j .dynsym -j .rel -j .rela -j .reloc --target=efi-app-aarch64 src/arch/arm/aarch64/boot/c/efimain.so build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI
+	$(OBJCOPY_AARCH64) $(OBJCOPY_FLAGS_AARCH64_EFI) src/arch/arm/aarch64/boot/c/efimain.so build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI
 	$(STRIP_AARCH64) build/arm/uefi/root/EFI/BOOT/BOOTAA64.EFI
 
 build/arm/uboot/aarch64/hd.bin: build/arm/uboot/aarch64/fat32.bin
