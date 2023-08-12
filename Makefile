@@ -13,7 +13,7 @@ CFLAGS_X86_64_EFI = -Wall -Werror -fno-stack-protector -fpic -fshort-wchar -mno-
 CFLAGS_X86_64_EFINEW = -Wall -Werror -fno-stack-protector -fpic -ffreestanding -fno-stack-check -fshort-wchar -mno-red-zone -maccumulate-outgoing-args
 CFLAGS_AARCH32_LEGACY =
 CFLAGS_AARCH32 =
-CFLAGS_AARCH64 = -Wall -O2 -ffreestanding -nostdinc -nostdlib -nostartfiles
+CFLAGS_AARCH64 = -Wall -O2 -ffreestanding -nostdlib -nostartfiles -nodefaultlibs -Isrc/arch/arm/aarch64/shared/c
 CFLAGS_AARCH64_EFI = -Wall -Werror -fno-stack-protector -fpic -fshort-wchar -DEFI_FUNCTION_WRAPPER
 CFLAGS_AARCH64_EFINEW = -Wall -Werror -fno-stack-protector -fpic -ffreestanding -fno-stack-check -fshort-wchar -maccumulate-outgoing-args
 # EFIDIR = /nix/store/vm982y77hrc626va4mcpr73vsskqgvll-gnu-efi-3.0.15
@@ -52,7 +52,7 @@ OBJFILES_X86_32 = src/arch/x86/32/boot/asm/inc/multiboot.o src/arch/x86/32/boot/
 OBJFILES_X86_64 = src/arch/x86/64/boot/asm/inc/multiboot.o src/arch/x86/64/boot/c/multiboot.o src/arch/x86/64/kernel/c/kernel64.o
 OBJFILES_AARCH32_LEGACY =
 OBJFILES_AARCH32 =
-OBJFILES_AARCH64 = src/arch/arm/aarch64/boot/asm/bootstrap.o src/arch/arm/aarch64/kernel/c/kernel64.o
+OBJFILES_AARCH64 = src/arch/arm/aarch64/boot/asm/bootstrap.o src/arch/arm/aarch64/shared/c/pl011.o src/arch/arm/aarch64/kernel/c/kernel64.o
 
 .PHONY: all clean x86_64_all x86_32_all x86_16_all x86_all aarch64_all aarch32_all aarch32_legacy_all arm_all qemu_x86_16a qemu_x86_32c qemu_x86_32c_direct qemu_x86_64c qemu_aarch64c_direct qemu_x86_64c_uefi
 
@@ -333,6 +333,9 @@ build/arm/uboot/root/kern32_legacy_c.elf: build/arm/uboot/root
 
 build/arm/uboot/aarch32_legacy/hd.bin: build/arm/uboot/root/kern32_legacy_c.elf
 
+src/arch/arm/aarch64/shared/c/%.o: src/arch/arm/aarch64/shared/c/%.c
+	$(CC_AARCH64) $(CFLAGS_AARCH64) -o $@ -c $<
+
 src/arch/arm/aarch64/kernel/c/kernel64.o: src/arch/arm/aarch64/kernel/c/kernel64.c
 	$(CC_AARCH64) $(CFLAGS_AARCH64) -o $@ -c $<
 
@@ -372,7 +375,7 @@ qemu_x86_64c: build/x86/bios/x86_64/hd.bin
 	qemu-system-x86_64 -cpu qemu64 -drive file=build/x86/bios/x86_64/hd.bin,format=raw $(EXTRA_QEMU_OPTS)
 
 qemu_aarch64c_direct: build/arm/uboot/root/kern64c.elf
-	qemu-system-aarch64 -M virt -device ramfb -cpu max -kernel build/arm/uboot/root/kern64c.elf $(EXTRA_QEMU_OPTS)
+	qemu-system-aarch64 -M virt -device ramfb -cpu max -kernel build/arm/uboot/root/kern64c.elf -serial stdio $(EXTRA_QEMU_OPTS)
 
 # usb start
 # load usb 0:1 0x40400000 kern64c.elf
@@ -390,5 +393,9 @@ qemu_aarch64c_uefi: build/arm/uefi/hd.bin
 
 qemu_x86_64c_uefi: build/x86/uefi/hd.bin
 	qemu-system-x86_64 -cpu qemu64 -pflash OVMF_CODE.fd -pflash OVMF_VARS.fd -drive file=build/x86/uefi/hd.bin,format=raw $(EXTRA_QEMU_OPTS)
+
+export_dtb_aarch64:
+	qemu-system-aarch64 -M virt,dumpdtb=virt.dtb  -device ramfb -cpu max -smp cores=8 -device usb-ehci -device usb-kbd -device usb-tablet
+	dtc -I dtb -O dts virt.dtb > dtb-human.txt
 
 # END QEMU

@@ -107,6 +107,7 @@ runCommand "danos" {
         nasm
         gcc
         qemu
+        dtc
     ] ++ (if builtins.currentSystem == "aarch64-darwin" then [
         pkgsCross.i686-embedded.pkgsBuildHost.gcc
         pkgsCross.x86_64-embedded.pkgsBuildHost.gcc
