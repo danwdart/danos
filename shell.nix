@@ -109,12 +109,18 @@ runCommand "danos" {
         qemu
         dtc
     ] ++ (if builtins.currentSystem == "aarch64-darwin" then [
-        pkgsCross.i686-embedded.pkgsBuildHost.gcc
-        pkgsCross.x86_64-embedded.pkgsBuildHost.gcc
+        pkgsCross.gnu32.pkgsBuildHost.gcc
+        # pkgsCross.x86_64-embedded.pkgsBuildHost.gcc # not cached
         pkgsCross.gnu64.pkgsBuildHost.gcc
-        pkgsCross.aarch64-embedded.pkgsBuildHost.gcc
+        # pkgsCross.aarch64-embedded.pkgsBuildHost.gcc # not cached
         pkgsCross.arm-embedded.pkgsBuildHost.gcc
-        pkgsCross.armhf-embedded.pkgsBuildHost.gcc
+        # pkgsCross.armhf-embedded.pkgsBuildHost.gcc # not cached
+        pkgsCross.armv7l-hf-multiplatform.pkgsBuildHost.gcc
+        pkgsCross.gnu64.pkgsHostTarget.gnu-efi
+        # more pkgsCross for linux
+        # gnu-efi
+        # OVMF.fd
+        # ubootQemuAarch64
     ] else (if builtins.currentSystem == "aarch64-linux" then [
         pkgsCross.gnu32.pkgsBuildHost.gcc
         # pkgsCross.x86_64-embedded.pkgsBuildHost.gcc # not cached
